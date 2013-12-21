@@ -1,0 +1,1 @@
+PHP should have write access to this folder.
