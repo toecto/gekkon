@@ -1,5 +1,7 @@
 <?php
 //version 1.0
+
+
 class gekkon_compiler extends gekkon{
 
 	function __construct(&$gekkon)
@@ -9,7 +11,11 @@ class gekkon_compiler extends gekkon{
 		$this->original_tpl_path = $gekkon->tpl_path;
 		$this->tpl_base_path = $gekkon->tpl_base_path;
 		$this->bin_path = $gekkon->bin_path;
-		$this->arg_compiler=new gekkon_arg_compiler(&$this);
+		
+                include_once $gekkon->gekkon_path.'ll_parser.php';
+                include_once $gekkon->gekkon_path.'lexer.php';
+                
+                $this->arg_compiler=new gekkon_arg_compiler(&$this);
                 $this->arg_lexer=new gekkon_lexer();
 	}
 
@@ -240,7 +246,7 @@ class gekkon_arg_compiler
 	function __construct(&$gekkon)
 	{
             $this->gekkon=$gekkon;
-		include_once $gekkon->gekkon_path.'ll_parser.php';
+		
 		$this->parser=new gekkon_ll_parser(array(
 							'S'=>'VX | IX | sX | (e)X | D ',
 							'D'=> 'dL',

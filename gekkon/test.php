@@ -1,9 +1,9 @@
 <?php
 include_once 'gekkon.php';
 include_once 'compiler.php';
-include_once 'll_parser_1.php';
-//include_once 'll_parser2.php';
-include_once '../error_n_trace.php';
+include_once 'll_parser.php';
+include_once 'lexer.php';
+
 define('R_DEBUG', 1);
 ini_set("display_errors", 'on');
 // preg_match_all('/([A-Z]+)|([^A-Z\s])/u', 'aaBDsNsDFDF', $m);
