@@ -8,25 +8,13 @@ define('R_DEBUG', 1);
 ini_set("display_errors", 'on');
 // preg_match_all('/([A-Z]+)|([^A-Z\s])/u', 'aaBDsNsDFDF', $m);
 // print_r($m);
-function  r_log($msg)
-{
-    
-    
-}
 
-function r_error($msg)
-{
-    echo "Gekkon Error: ".$msg."\n";
-    return false;
-    
-}
 // die();
 
 
 
 $vars=array(
 '1.t()',
-'',
 '$a.x(1+1) +($b.x(1+")"+ 1)+g)*(1).tt()',
     
     '$str',
@@ -139,7 +127,7 @@ $g_compiler=new gekkon_compiler($gekkon);
 
 
 $cnt=count($vars);
-$lx=new lexer();
+$lx=new gekkon_lexer();
 for($j=0;$j<$cnt;$j++)
 {
     echo $vars[$j],"\n";

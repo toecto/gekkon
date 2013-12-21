@@ -136,3 +136,14 @@ class gekkon{
 }
 
 //end of class -----------------------------------------------------------------
+
+function  r_log($msg)
+{
+    
+    
+}
+function  r_error($msg)
+{
+    echo  $msg."<br>\n";
+    return false;
+}

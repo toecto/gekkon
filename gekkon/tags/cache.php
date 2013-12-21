@@ -8,7 +8,7 @@ function gekkon_tag_cache($gekkon_compiler,$_tag)
 	$stream='"none'.$var_cnt.'"';
 	if($_tag['raw_args']!='')
 	{
-		$stream=$gekkon_compiler->parse_expression($_tag['raw_args']);
+		$stream=$gekkon_compiler->compile_exp($_tag['raw_args']);
 		if($stream===false)
 			return r_error('gekkon: tag cache: Cannot compile extression');
 	}

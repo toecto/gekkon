@@ -10,12 +10,12 @@ class gekkon_compiler extends gekkon{
 		$this->tpl_base_path = $gekkon->tpl_base_path;
 		$this->bin_path = $gekkon->bin_path;
 		$this->arg_compiler=new gekkon_arg_compiler(&$this);
+                $this->arg_lexer=new gekkon_lexer();
 	}
 
 	function compile_exp($str)
 	{
-		$lx=new lexer();
-                $data=$lx->parse_expression($str);
+                $data=$this->arg_lexer->parse_expression($str);
                 $rez='';
                 foreach($data as $item)
                 {
@@ -205,24 +205,6 @@ class gekkon_compiler extends gekkon{
 		}
 	}
 
-	function parse_expression($_str)
-	{
-		$_data=explode(' ',trim($_str));
-		$_rez='';
-		foreach($_data as $item)
-		{
-			if(isset($item[0]))
-			{
-				//if($item[0] == '$' || $item[0] == '@')
-					if(($item = $this->compile_arg($item)) ==false) 
-						return r_error('Cannot compile expression: '.$_str,'gekkon_compiler');
-
-			}
-			$_rez .= ' '.$item;
-		}
-		return $_rez;
-	}
-
 	function parse_args($_str)
 	{
 		$_str = explode('=',$_str);
@@ -234,7 +216,7 @@ class gekkon_compiler extends gekkon{
 		{
 			$t = strrpos($_str[$i], ' ');
 			$val = substr($_str[$i], 0, $t);
-			$_rez[$name] = $this->compile_arg($val);
+			$_rez[$name] = $this->compile_exp($val);
 				
 			$name = trim(substr($_str[$i],$t));
 			$i++;
@@ -242,7 +224,7 @@ class gekkon_compiler extends gekkon{
 		if(isset($_str[$cnt]))
 		{
 			$val = $_str[$cnt];
-			$_rez[$name] = $this->compile_arg($val);
+			$_rez[$name] = $this->compile_exp($val);
 		}
 		return $_rez;
 	}
@@ -281,8 +263,7 @@ class gekkon_arg_compiler
 		if($_str=='@')return '@';
 
 		//$_data = gekkon_lexer($_str);
-		$lx=new lexer();
-                $_data=$lx->parse_variable($_str);
+                $_data=$this->gekkon->arg_lexer->parse_variable($_str);
 
 		//if(!(isset($_data[0]['@']) || isset($_data[0]['$']) || isset($_data[0]['s']) || isset($_data[0]['w']) || isset($_data[0]['d']) ))
 		//	return $_str;

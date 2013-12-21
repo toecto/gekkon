@@ -5,7 +5,7 @@ function gekkon_tag_wrap($gekkon_compiler,$_tag)
 		return $gekkon_compiler->compile_r($_tag['content']);
 	
 
-	$exp=$gekkon_compiler->parse_expression('@_ob_buffer.'.$_tag['raw_args']);
+	$exp=$gekkon_compiler->compile_exp('@_ob_buffer.'.$_tag['raw_args']);
 	if($exp===false)
 		return r_error('gekkon: tag wrap: Cannot compile arg');
 
