@@ -15,7 +15,7 @@ class gekkon_compiler extends gekkon{
                 include_once $gekkon->gekkon_path.'ll_parser.php';
                 include_once $gekkon->gekkon_path.'lexer.php';
                 
-                $this->arg_compiler=new gekkon_arg_compiler(&$this);
+                $this->arg_compiler=new gekkon_arg_compiler($this);
                 $this->arg_lexer=new gekkon_lexer();
 	}
 
