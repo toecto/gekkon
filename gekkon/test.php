@@ -16,7 +16,7 @@ ini_set("display_errors", 'on');
 $vars=array(
 '1.t()',
 '$a.x(1+1) +($b.x(1+")"+ 1)+g)*(1).tt()',
-    
+    '$a.x(1+1) +(3+4)*(1+2)',
     '$str',
     '$str.index',
     '@aaa.bbb()',
@@ -98,7 +98,7 @@ $vars=array(
     '7.pow()',
     '7.7.pow()',
     '7.pow(2)',
-    '7.7.pow(2)',
+    '(7.7).pow(2)',
     'pow(22)',
 
     'pow(22).trr(11)',
@@ -128,6 +128,10 @@ $g_compiler=new gekkon_compiler($gekkon);
 
 $cnt=count($vars);
 $lx=new gekkon_lexer();
+
+print_r($lx->parse_construction('from=$asd.sd item=$asd meta=$loop', array('from','=','<exp>','item','=','<exp>','meta','=','<exp>')));
+echo $lx->error;
+die('ok');
 for($j=0;$j<$cnt;$j++)
 {
     echo $vars[$j],"\n";

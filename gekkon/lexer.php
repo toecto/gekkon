@@ -1,6 +1,5 @@
 <?php
 
-
 class gekkon_lexer{
     
     var $str;
@@ -8,6 +7,62 @@ class gekkon_lexer{
     var $rez;
     var $current;
     var $error;
+    
+    function parse_construction($str,$keys)
+    {
+        $data=$this->parse_expression($str);
+        $this->init('');
+        $current_keyword=0;
+        $rez=array();
+        $buffer=array();
+        foreach($data as $item)
+        {
+            if(in_array($item['v'], $keys))
+            {
+                if(count($buffer)>0)
+                {
+                    $this->save($buffer, 'e');
+                    $current_keyword++;
+                    $buffer=array();
+                }
+                if($item['v']==$keys[$current_keyword])
+                {
+                        $this->save($item['v'], 'k');
+                        $current_keyword++;
+                }
+                else
+                {
+                    $this->error.='Unxpected keyword '.$item['v'].' '.$keys[$current_keyword]."<br>\n";
+                    return false;
+                }
+            }
+            else
+            {
+                if($keys[$current_keyword]=='<exp>')
+                    $buffer[]=$item;
+                else
+                {
+                    $this->error.="Keyword '".$keys[$current_keyword]."' is expected<br>\n";
+                    return false;
+                }
+            }
+        }
+
+        if(count($buffer)>0)
+        {
+            $this->save($buffer, 'e');
+            $current_keyword++;
+        }
+        if($current_keyword<count($keys)-1)
+        {
+            $this->error.="Keyword '".$keys[$current_keyword]."' is expected<br>\n";
+            return false;
+        }
+        
+        
+        return $this->rez;
+    }
+    
     function parse_expression($str) 
     {
         $this->init($str);
@@ -66,7 +121,7 @@ class gekkon_lexer{
                 $i=$this->findClose($this->step,'(',')');
                 if($i===false)   
                 {
-                    $this->error.='Cannot find the end of the string, '.$current.' - expected; ';
+                    $this->error.='Cannot find the end of the string, '.$current." - expected; <br>\n";
                     return 'exit';
                 }
                 else
@@ -80,7 +135,7 @@ class gekkon_lexer{
                 $i=$this->findClose($this->step,$current,$current);
                 if($i===false)   
                 {
-                    $this->error.='Cannot find the end of the string, '.$current.' - expected; ';
+                    $this->error.='Cannot find the end of the string, '.$current." - expected; <br>\n";
                     return 'exit';
                 }
                 else
@@ -143,7 +198,7 @@ class gekkon_lexer{
                         $i=$this->findClose($i,$current, $current);
                         if($i===false)   
                         {
-                            $this->error.='Cannot find the end of the string, '.$current.' - expected; ';
+                            $this->error.='Cannot find the end of the string, '.$current." - expected; <br>\n";
                             return false;
                         }
                         continue;
@@ -192,7 +247,7 @@ class gekkon_lexer{
                             $i=$this->findClose($this->step, $c, $c);
                             if($i===false)   
                             {
-                                $this->error.='Cannot find the end of the string, '.$c.' - expected; ';
+                                $this->error.='Cannot find the end of the string, '.$c." - expected; <br>\n";
                                 return 'exit';
                             }
                             else
@@ -209,7 +264,7 @@ class gekkon_lexer{
                             $i=$this->findClose($this->step, '(', ')');
                             if($i===false)   
                             {
-                                $this->error.='Cannot find the end of the string, '.$c.' - expected; ';
+                                $this->error.='Cannot find the end of the string, '.$c.' - expected; <br>\n';
                                 return 'exit';
                             }
                             else
@@ -248,10 +303,9 @@ class gekkon_lexer{
 	}
 	return $this->rez;
     }
-    
+
     
 }
 
 
 // end of class gekkon_lexer ---------------------------------------------------
-

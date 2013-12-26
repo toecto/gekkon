@@ -1,0 +1,1 @@
+tag cache: clear cache file on request instead of removing all the files.
