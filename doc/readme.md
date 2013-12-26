@@ -1,7 +1,123 @@
-# Gekkon template engine
-
-### Built-in template tags
+#Quick-Start Guide & Code Reference
 ***
+Gekkon is an easy-to-use & fast PHP template engine that allows you to separate your HTML code from your PHP code.<br>
+This results in cleaner code that's easier to read and maintain.<br>
+
+## Features
+- Includes
+- Loops
+- Conditions
+- Caching
+- Debugging
+- Сalling PHP functions
+
+##Installation
+
+- Download the Gekkon ZIP package and extract it to your project directory.
+- Create an empty directory to store your template files.
+- Create another empty directory to store your compiled versions of templates.
+
+##Usage
+Include the `gekkon.php` in your project.
+
+	include "gekkon/gekkon.php";
+
+Create a new instance of the Gekkon class passing the configuration parameters:
+
+- `$gekkon_path` — Full path to the Gekkon directory.
+- `$template_path` — Full path to template directory. (need read permission)
+- `$bin_path` — Full path to compiled templates directory. (need access to read and write)
+
+All paths must end with `/`.
+
+	$path = $_SERVER['DOCUMENT_ROOT'];
+	$gekkon = new Gekkon($path.'/gekkon/', $path.'/tpl_bin/', $path.'tpl/');
+
+##For Developers
+Use the `register()` method to assign variables to the template engine, so designers can use them in their template files:
+
+	$gekkon->register('variableName', $variableValue);
+
+Use the `display()` method to display template by name:
+
+	$gekkon->display('main.tpl');
+
+##For Designers
+A template contains variables or expressions, which get replaced with values when the template is evaluated, and tags, which control the logic of the template.
+
+- Use `{$variableName}` markup in your template files to display the value of a variable defined in the PHP backend of your project.
+- Use `{tagName}...HTML content...{/tagName}` markup in your template files to display dynamic content generated through foreach loops or conditional statements.
+
+#### Variables
+
+| Template syntax | Description | PHP equivalent |
+|:----------------|:------------|:-------------|
+| `{$var}`        | Display variable value. | `$var;` |
+| `{$var.0}`<br>`{$var.1.2}`      | Access to simple array values by index.| `$var[0];`<br>`$var[1][2];`|
+| `{$var.key_name}`, `{$var.key_name.key_name}` | Access to associative array values by key name. | `$var['key_name'];` `$var['key_name']['key_name'];` |
+
+Also, you can use variables to access the value of an associative array as a key:
+
+| Template syntax | PHP equivalent |
+|:------------|:-------------|
+| `{$var.$key_name}` | `$var[$key_name];` |
+| `{$var.$key_name1.$key_name2}` | `$var[$key_name1][$key_name2];` |
+| `{$var.$key_name&$sub_key_name}` | `$var[$key_name[$sub_key_name]];` |
+| `{$var.$key_name1&$sub_key_name1.$key_name2}` | `$var[$key_name1[$sub_key_name1]][$key_name2];` |
+
+#### Functions
+
+You can call functions (including built-in PHP):
+
+| Template syntax | PHP equivalent |
+|:------------|:-------------|
+| `{$var.foo()}`| `foo($var);` |
+| `{$var.foo().bar()}`| `bar(foo($var));` |
+| `{$var.isset()}` | `isset($var);` |
+| `{$str.strlen()}` | `strlen($str);` |
+
+object methods (without passing parameters):
+
+	{$obj->method_name()}
+
+> To access the object methods with parameters, use `{set}` template tag.
+
+and object fields:
+
+	{$obj->field_name}
+
+#### Expressions 
+
+	{$var + 1}
+	{$var1 * $var2}
+	
+You can use the result of the expressions when accessing an associative array. To do this, you must enclose the expression in parentheses `()`.
+
+	{$var.($arr.0)}
+	{$var.($arr.1.foo())}
+	{$var.($arr.1.foo()).bar()}
+	
+### Template tags
+
+All template tags are contained within the structure.
+
+	{tag_name}
+
+Tags may contain parameters:
+
+	{tag param}
+	{tag param1 param2}
+
+including a key-value format:
+
+	{tag key=$value}
+	{tag key=$var.0}
+	{tag key1=$value1 key2=$value2}
+
+> Order of the parameters does not matter
+
+## Built-in template tags
+
 **{comment}...{/comment}**, **{# .. #}**<br>
 Ignoring all code between the opening and closing `comment` tags.<br>
 Have a short form `#`.<br>
@@ -45,9 +161,29 @@ Displays all debugging information, including the current context.
 Loads & register custom tag library in template scope.
 
 	{load news_tags.php}
-	
-	// Or without php extension.
-	{load news_tags}
+
+<br>**{include}**<br>
+Includes a template by file name. Template name can be variable.
+
+	{include catalog.tpl}
+	{include $catalog_tpl}
+
+
+<br>**{php}...{/php}**<br>
+Inserts native PHP code. <br>
+Access to template variable can be derived from array `$this->data['var_name']`.
+
+	{php}
+		echo $this->data['var_name'];
+	{/php}
+
+
+<br>**{cache}...{/cache}**<br>
+In addition to compiling the tag's contens is executed and stored as the result HTML code.
+
+	{cache}
+		...
+	{/cache}
 
 
 <br>**{now}**<br>
@@ -80,9 +216,16 @@ Conveniently used to insert JavaScript code that may conflict with Gekkon syntax
 	{/static}
 
 
+<br>**{for}...{/for}**<br>
+Cycle operator. Works similarly to the operator in php.<br>
+
+	{for from=1 to=10 key=$key}
+    	<li>{$key}</li>
+	{/for}
+
 
 <br>**{foreach}...{empty}...{/foreach}**<br>
-Operator cycle iterates passed array.<br>
+Iterates passed array.<br>
 You can use `{empty}` condition for ease of handling when the passed array is empty.
 
 	{foreach from=$data item=$item key=$key}
@@ -184,7 +327,7 @@ If given one or more variables, check whether any variable has changed:
 		{ifchange $date.month}...{/ifchange}
 	{/foreach}
 
-Also you can take an optional `{else}` condition:
+Also you can use an optional `{else}` condition:
 
 	{foreach from=$days item=$date}
 		{ifchange $date.month}
@@ -193,4 +336,3 @@ Also you can take an optional `{else}` condition:
 			row3
 		{/ifchange}
 	{/foreach}
-

@@ -139,8 +139,8 @@ class gekkon{
 
 function  r_log($msg)
 {
-    
-    
+
+
 }
 function  r_error($msg)
 {
