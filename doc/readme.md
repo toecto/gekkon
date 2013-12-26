@@ -161,9 +161,29 @@ Displays all debugging information, including the current context.
 Loads & register custom tag library in template scope.
 
 	{load news_tags.php}
-	
-	// Or without php extension.
-	{load news_tags}
+
+<br>**{include}**<br>
+Includes a template by file name. Template name can be variable.
+
+	{include catalog.tpl}
+	{include $catalog_tpl}
+
+
+<br>**{php}...{/php}**<br>
+Inserts native PHP code. <br>
+Access to template variable can be derived from array `$this->data['var_name']`.
+
+	{php}
+		echo $this->data['var_name'];
+	{/php}
+
+
+<br>**{cache}...{/cache}**<br>
+In addition to compiling the tag's contens is executed and stored as the result HTML code.
+
+	{cache}
+		...
+	{/cache}
 
 
 <br>**{now}**<br>
@@ -196,9 +216,16 @@ Conveniently used to insert JavaScript code that may conflict with Gekkon syntax
 	{/static}
 
 
+<br>**{for}...{/for}**<br>
+Cycle operator. Works similarly to the operator in php.<br>
+
+	{for from=1 to=10 key=$key}
+    	<li>{$key}</li>
+	{/for}
+
 
 <br>**{foreach}...{empty}...{/foreach}**<br>
-Operator cycle iterates passed array.<br>
+Iterates passed array.<br>
 You can use `{empty}` condition for ease of handling when the passed array is empty.
 
 	{foreach from=$data item=$item key=$key}
