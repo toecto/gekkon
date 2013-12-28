@@ -83,12 +83,12 @@ class gekkon_ll_parser{
 		{
 			if($this->isup($t=$rule['right'][0]))
 			{
-					$t=$this->find_first_term($t);
-					foreach($t as $i=>$n)
-					{
-						$this->_fsm_map[$left][$i]=$r_num;
-						$this->_firsts[$left][$i]=$r_num;
-					}
+                $t=$this->find_first_term($t);
+                foreach($t as $i=>$n)
+                {
+                    $this->_fsm_map[$left][$i]=$r_num;
+                    $this->_firsts[$left][$i]=$r_num;
+                }
 			}
 			else
 			{
@@ -161,6 +161,7 @@ class gekkon_ll_parser{
 	function parse($_str)
 	{
 		r_log('Parce '.$_str,'gekkon_parser');
+        $this->error=array();
 		if(is_string($_str))
 		{
 			$this_str=true;
@@ -188,8 +189,12 @@ class gekkon_ll_parser{
 		$limit=0;
 		for($now=0;$now<$cnt;)
 		{
-                    //$this->print_stack($_stack);
-			if($limit++>1000){return r_trace('gekkon_ll_parser: parsing limit reached');}
+            //$this->print_stack($_stack);
+			if($limit++>1000)
+            {
+                $this->error[]='gekkon_ll_parser: parsing limit reached';
+                return false;
+            }
 			r_log($_stack,'gekkon_parser');
 			$t=array_pop($_stack);
 			$st=$t['s'];
@@ -240,7 +245,8 @@ class gekkon_ll_parser{
 								$tt.=$t['v'];
 						}
 					}	
-					return r_error('Cannot parse from '.substr($tt,0,-1),'gekkon_ll_parser');
+                    $this->error[]='[gekkon_ll_parser] Cannot parse from '.substr($tt,0,-1);
+					return false;
 				}
 			}
 		}
@@ -256,18 +262,20 @@ class gekkon_ll_parser{
 					$tt.=current($t);
 				}
 			}	
-			return r_error('Cannot parse from the end of '.substr($tt,0,-1),'gekkon_ll_parser');
+			$this->error[]='[gekkon_ll_parser] Cannot parse from the end of '.substr($tt,0,-1);
+            return false;
 		}
 	return $_tree;
 	}
-    function print_stack($stack)
-    {
-        foreach($stack as $v)
+        
+        function print_stack($stack)
         {
-            echo $v['s']."\n";
+            foreach($stack as $v)
+            {
+                echo $v['s']."\n";
+            }
+            echo "\n";
         }
-        echo "\n";
-    }
 
 
 } // end of class -----------------------------------------------------

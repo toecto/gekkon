@@ -9,9 +9,6 @@ ini_set("display_errors", 'on');
 // preg_match_all('/([A-Z]+)|([^A-Z\s])/u', 'aaBDsNsDFDF', $m);
 // print_r($m);
 
-// die();
-
-
 
 $vars=array(
 '1.t()',
@@ -131,11 +128,13 @@ $lx=new gekkon_lexer();
 
 print_r($lx->parse_construction('from=$asd.sd item=$asd meta=$loop', array('from','=','<exp>','item','=','<exp>','meta','=','<exp>')));
 echo $lx->error;
-die('ok');
+//die('ok');
 for($j=0;$j<$cnt;$j++)
 {
     echo $vars[$j],"\n";
-    $x=$g_compiler->compile_exp($vars[$j]);
+    if(($x=$g_compiler->compile_exp($vars[$j]))===false)
+        print_r($g_compiler->error);
+    
     echo $x,"\n\n";
     //print_r($lx->parse_variable($vars[$j]));
     //echo $lx->error;

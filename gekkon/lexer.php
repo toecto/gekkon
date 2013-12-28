@@ -7,6 +7,7 @@ class gekkon_lexer{
     var $rez;
     var $current;
     var $error;
+    var $step;
     
     function parse_construction($str,$keys)
     {
@@ -32,7 +33,7 @@ class gekkon_lexer{
                 }
                 else
                 {
-                    $this->error.='Unxpected keyword '.$item['v'].' '.$keys[$current_keyword]."<br>\n";
+                    $this->error[]='Unxpected keyword '.$item['v'].' '.$keys[$current_keyword];
                     return false;
                 }
             }
@@ -42,7 +43,7 @@ class gekkon_lexer{
                     $buffer[]=$item;
                 else
                 {
-                    $this->error.="Keyword '".$keys[$current_keyword]."' is expected<br>\n";
+                    $this->error[]="Keyword '".$keys[$current_keyword]."' is expected";
                     return false;
                 }
             }
@@ -55,7 +56,7 @@ class gekkon_lexer{
         }
         if($current_keyword<count($keys)-1)
         {
-            $this->error.="Keyword '".$keys[$current_keyword]."' is expected<br>\n";
+            $this->error[]="Keyword '".$keys[$current_keyword]."' is expected";
             return false;
         }
         
@@ -66,27 +67,6 @@ class gekkon_lexer{
     function parse_expression($str) 
     {
         $this->init($str);
-        $state='main';
-        while($state!='exit')
-        {
-            $fn='state_'.$state;
-            $state=$this->$fn();
-        }
-        return $this->rez;
-    }
-    
-    function init($str)
-    {
-        $this->str=$str;
-        $this->step=0;
-        $this->error='';
-        $this->rez=array();
-        $this->length=mb_strlen($this->str);
-        $this->reccursive_cnt=0;
-    }
-    
-    function state_main()
-    {
         $lexems=' .:,;?![]{}<>-+/*=&^#%~';
         $before=$current='';
         while($this->step<$this->length)
@@ -100,76 +80,74 @@ class gekkon_lexer{
             }
             else
             {
-                return 'variable';
+                $i=$this->find_variable_end($this->step);
+                if($i===false)
+                {
+                    return false;
+                }
+                $this->save(substr($this->str,$this->step,$i-$this->step+1), 'v');
+                $this->step=$i;
             }
             $this->step++;
         }
-        return 'exit';
+        return $this->rez;
     }
-        
-    function state_variable()
+    
+    function init($str)
+    {
+        $this->str=$str;
+        $this->step=0;
+        $this->error=array();
+        $this->rez=array();
+        $this->length=mb_strlen($this->str);
+        $this->reccursive_cnt=0;
+    }
+    
+    function find_variable_end($start)
     {
         $before=$current='';
-        $buffer='';
-        $lexems=' ,;?![]{}<>-+/*=&^#%~';
-        while($this->step<$this->length)
+        $stop_lexems=' ,;?![]{}<>-+/*=&^#%~';
+        $step=$start;
+        while($step<$this->length)
         {
             $before=$current;
-            $current=$this->str[$this->step];
+            $current=$this->str[$step];
             if($current=='(')
             {
-                $i=$this->findClose($this->step,'(',')');
-                if($i===false)   
+                $step=$this->find_close($step,'(',')');
+                if($step===false)   
                 {
-                    $this->error.='Cannot find the end of the string, '.$current." - expected; <br>\n";
-                    return 'exit';
-                }
-                else
-                {
-                    $buffer.=substr($this->str, $this->step,$i-$this->step+1);
-                    $this->step=$i;
+                    $this->error[]='Cannot find the end of the string, '.$current." - expected";
+                    return false;
                 }
             }
             else if($current=='"' || $current=='\'')
             {
-                $i=$this->findClose($this->step,$current,$current);
-                if($i===false)   
+                $step=$this->find_close($step,$current,$current);
+                if($step===false)   
                 {
-                    $this->error.='Cannot find the end of the string, '.$current." - expected; <br>\n";
-                    return 'exit';
-                }
-                else
-                {
-                    $buffer.=substr($this->str, $this->step,$i-$this->step+1);
-                    $this->step=$i;
+                    $this->error[]='Cannot find the end of the string, '.$current." - expected";
+                    return false;
                 }
             }
             else if($current=='-')
             {
-                if($this->step+1<$this->length && $this->str[$this->step+1]=='>')
+                if($step+1<$this->length && $this->str[$step+1]=='>')
                 {
-                    $this->step++;
-                    $buffer.='->';
+                    $step++;
                 }
                 else
                 {
-                    $this->save($buffer, 'v');
-                    return 'main';
+                    return $step-1;
                 }
             }
-            else if(strpos($lexems, $current)!==false)
+            else if(strpos($stop_lexems, $current)!==false)
             {
-                $this->save($buffer, 'v');
-                return 'main';
+                return $step-1;
             }
-            else
-            {
-                $buffer.=$current;
-            }
-            $this->step++;
+            $step++;
         }
-        $this->save($buffer, 'v');
-        return 'exit';
+        return $step-1;
     }
     
     function save($buffer,$type)
@@ -179,7 +157,7 @@ class gekkon_lexer{
     }
     
 
-    function findClose($start,$opener,$closer,$alt='')
+    function find_close($start,$opener,$closer,$alt='')
     {
         $this->reccursive_cnt++;
         if($this->reccursive_cnt>500)die('not ok');
@@ -195,10 +173,10 @@ class gekkon_lexer{
                 {
                     if($current=='"' || $current=='\'')
                     {
-                        $i=$this->findClose($i,$current, $current);
+                        $i=$this->find_close($i,$current, $current);
                         if($i===false)   
                         {
-                            $this->error.='Cannot find the end of the string, '.$current." - expected; <br>\n";
+                            $this->error[]='Cannot find the end of the string, '.$current." - expected";
                             return false;
                         }
                         continue;
@@ -224,84 +202,84 @@ class gekkon_lexer{
     function parse_variable($str)
     {
         $this->init($str);
-	$lexems=' .:,;?!()[]{}<>-+/*=&^@#$%~\\"\'';
-	$word='';
+        $lexems=' .:,;?!()[]{}<>-+/*=&^@#$%~\\"\'';
+        $word='';
         $before=$c='';
-	for($this->step=0;$this->step<$this->length;$this->step++)
-	{
-		$before=$c;
-                $c=$this->str[$this->step];
-		if(strpos($lexems,$c)!==false)
-		{
-			if($word!='')
-			{
-                            if(is_numeric($word))
-                                $this->save($word, 'd');
-                            else
-                                $this->save($word, 'w');
-			}
-                        
-                        if($c=='"' || $c=="'")
+        for($this->step=0;$this->step<$this->length;$this->step++)
+        {
+            $before=$c;
+            $c=$this->str[$this->step];
+            if(strpos($lexems,$c)!==false)
+            {
+                if($word!='')
+                {
+                    if(is_numeric($word))
+                        $this->save($word, 'd');
+                    else
+                        $this->save($word, 'w');
+                }
+
+                if($c=='"' || $c=="'")
+                {
+
+                    $i=$this->find_close($this->step, $c, $c);
+                    if($i===false)   
+                    {
+                        $this->error[]='Cannot find the end of the string, '.$c." - expected";
+                        return 'exit';
+                    }
+                    else
+                    {
+                        $word=substr($this->str, $this->step, $i-$this->step+1);
+                        $this->save($word, 's');
+                        $word='';
+                        $this->step=$i;
+                    }
+                } 
+                else if($c=='(')
+                {
+                    $this->save('(', '(');
+                    $i=$this->find_close($this->step, '(', ')');
+                    if($i===false)   
+                    {
+                        $this->error[]='Cannot find the end of the string, '.$c." - expected";
+                        return false;
+                    }
+                    else
+                    {
+                        do
                         {
-                            
-                            $i=$this->findClose($this->step, $c, $c);
-                            if($i===false)   
-                            {
-                                $this->error.='Cannot find the end of the string, '.$c." - expected; <br>\n";
-                                return 'exit';
-                            }
-                            else
-                            {
-                                $word=substr($this->str, $this->step, $i-$this->step+1);
-                                $this->save($word, 's');
-                                $word='';
-                                $this->step=$i;
-                            }
-                        } 
-                        else if($c=='(')
-                        {
-                            $this->save('(', '(');
-                            $i=$this->findClose($this->step, '(', ')');
-                            if($i===false)   
-                            {
-                                $this->error.='Cannot find the end of the string, '.$c.' - expected; <br>\n';
-                                return 'exit';
-                            }
-                            else
-                            {
-                                do
-                                {
-                                    $i2=$this->findClose($this->step, '(', ')',',');
-                                    $word=substr($this->str, $this->step+1, $i2-$this->step-1);
-                                    $this->save($word, 'e');
-                                    
-                                    $word='';
-                                    $this->step=$i2;
-                                    if($i2<$i)
-                                        $this->save(',', ',');
-                                }while($i2<$i);
-                                $this->save(')', ')');
-                            }
-                        }
-                        else
-                        {
+                            $i2=$this->find_close($this->step, '(', ')',',');
+                            $word=substr($this->str, $this->step+1, $i2-$this->step-1);
+                            $this->save($word, 'e');
+
                             $word='';
-                            if($c!=' ' || ($c==' ' && $before!=$c))
-                                $this->save($c, $c);
-                        }
-		}
-		else 
-		$word.=$c;
-	}
-			
-	if($word!='')
-	{
-            if(is_numeric($word))
-                $this->save($word, 'd');
-            else
-                $this->save($word, 'w');
-	}
-	return $this->rez;
+                            $this->step=$i2;
+                            if($i2<$i)
+                                $this->save(',', ',');
+                        }while($i2<$i);
+                        $this->save(')', ')');
+                    }
+                }
+                else
+                {
+                    $word='';
+                    if($c!=' ' || ($c==' ' && $before!=$c))
+                        $this->save($c, $c);
+                }
+            }
+            else 
+            $word.=$c;
+        }
+
+        if($word!='')
+        {
+                if(is_numeric($word))
+                    $this->save($word, 'd');
+                else
+                    $this->save($word, 'w');
+        }
+        return $this->rez;
     }
 
     
