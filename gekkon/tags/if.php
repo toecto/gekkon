@@ -9,6 +9,6 @@ function gekkon_tag_if($gekkon_compiler,$_tag)
 		return r_error('gekkon: tag if: Cannot compile expression');
 	$_rez="if(".$exp."){\n";
 	return $_rez.
-	$gekkon_compiler->compile_str($_tag['content']).
+	$gekkon_compiler->compile_str($_tag['content'],$_tag).
 	"}\n";
 }

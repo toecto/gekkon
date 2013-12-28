@@ -4,5 +4,15 @@
 4ee{$a+=2}
 5rr{$a.pow(2)}<br>
 6
-7tt{@ "String".strtoupper()}<br>
-8yy{@ 4.pow(2)}<br>
+{if $a>3}
+8tt{@ "String".strtoupper()}<br>
+9yy{@ 4.pow(2)}{@ 4.pow(2)}<br>
+{/if}
+11yy{@ 4.pow(2)}<br>
+{if $a>3}
+8tt{@ "String".strtoupper()}<br>
+9yy{@ 4.pow(2)}{@ 4.pow(2)}<br>
+{/if}{if $a>3}
+8tt{@ "String".strtoupper()}<br>
+9yy{@ 4.pow(2)}{@ 4.pow(2)}<br>
+{/if}

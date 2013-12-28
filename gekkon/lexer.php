@@ -205,7 +205,8 @@ class gekkon_lexer{
         $lexems=' .:,;?!()[]{}<>-+/*=&^@#$%~\\"\'';
         $word='';
         $before=$c='';
-        for($this->step=0;$this->step<$this->length;$this->step++)
+        $this->step=0;
+        while($this->step < $this->length)
         {
             $before=$c;
             $c=$this->str[$this->step];
@@ -270,6 +271,7 @@ class gekkon_lexer{
             }
             else 
             $word.=$c;
+            $this->step++;
         }
 
         if($word!='')
