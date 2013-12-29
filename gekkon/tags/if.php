@@ -1,14 +1,18 @@
 <?php
 
-function gekkon_tag_if($gekkon_compiler, $_tag)
+function gekkon_tag_if($compiler, $_tag)
 {
     //print_r($_tag);die();
     $_rez = '';
-    $exp = $gekkon_compiler->compile_exp($_tag['raw_args']);
+    $exp = $compiler->compile_exp($_tag['raw_args']);
+
     if($exp === false)
-            return r_error('gekkon: tag if: Cannot compile expression');
+            return $compiler->error('Cannot compile expression "'.$_tag['raw_args'].'"',
+                'Tag IF', $_tag['line']);
+
     $_rez = "if(".$exp."){\n";
     return $_rez.
-            $gekkon_compiler->compile_str($_tag['content'], $_tag).
-            "}\n";
+        $compiler->compile_str($_tag['content'], $_tag).
+        "}\n";
 }
+

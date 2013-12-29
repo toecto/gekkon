@@ -48,7 +48,7 @@ $vars = array(
     '$aaa.bbb($ccc.bbb(111),$fff.bbb($ggg.bbb(111)))->method(param,param2,$jjj.bbb($aaa.bbb(111)))->prop.funcF($str.($index.index2).(($index3.index4)->method1()->prop1.func()).func2())',
     'reactor::$min',
     'reactor::$min.111',
-    'reactor::$min.$aaa',
+    'reactor::$min.',
     'reactor::$min->aaa',
     'reactor::$min->aaa()',
     'reactor::$min->aaa(bbb)',
@@ -94,9 +94,11 @@ $vars = array(
     '$tt.(5.6)',
     '@',
     '$', //will be an error
+    '$.',
     '.',
     '',
-        /**/
+    '$.asd',
+    /**/
 );
 
 
@@ -117,16 +119,16 @@ $cnt = count($vars);
 $lx = new gekkon_lexer();
 
 print_r($lx->parse_construction('from=$asd.sd item=$asd meta=$loop',
-                array('from', '=', '<exp>', 'item', '=', '<exp>', 'meta', '=', '<exp>')));
+        array('from', '=', '<exp>', 'item', '=', '<exp>', 'meta', '=', '<exp>')));
 echo $lx->error;
 //die('ok');
 for($j = 0; $j < $cnt; $j++)
 {
-    echo $vars[$j], "\n";
+    echo $vars[$j], "<br>\n";
     if(($x = $g_compiler->compile_exp($vars[$j])) === false)
-            print_r($g_compiler->error);
+            $g_compiler->flush_errors();
 
-    echo $x, "\n\n";
+    echo $x, "<br><br>\n\n";
     //print_r($lx->parse_variable($vars[$j]));
     //echo $lx->error;
 }

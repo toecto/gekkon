@@ -33,7 +33,7 @@ class gekkon_lexer {
                 }
                 else
                 {
-                    $this->error[] = 'Unxpected keyword '.$item['v'].' '.$keys[$current_keyword];
+                    $this->error.= 'Unxpected keyword '.$item['v'].' '.$keys[$current_keyword]."\n";
                     return false;
                 }
             }
@@ -42,7 +42,7 @@ class gekkon_lexer {
                 if($keys[$current_keyword] == '<exp>') $buffer[] = $item;
                 else
                 {
-                    $this->error[] = "Keyword '".$keys[$current_keyword]."' is expected";
+                    $this->error.= "Keyword '".$keys[$current_keyword]."' is expected\n";
                     return false;
                 }
             }
@@ -55,7 +55,7 @@ class gekkon_lexer {
         }
         if($current_keyword < count($keys) - 1)
         {
-            $this->error[] = "Keyword '".$keys[$current_keyword]."' is expected";
+            $this->error.= "Keyword '".$keys[$current_keyword]."' is expected\n";
             return false;
         }
 
@@ -84,7 +84,7 @@ class gekkon_lexer {
                     return false;
                 }
                 $this->save(substr($this->str, $this->step, $i - $this->step + 1),
-                        'v');
+                    'v');
                 $this->step = $i;
             }
             $this->step++;
@@ -96,7 +96,7 @@ class gekkon_lexer {
     {
         $this->str = $str;
         $this->step = 0;
-        $this->error = array();
+        $this->error = '';
         $this->rez = array();
         $this->length = mb_strlen($this->str);
         $this->reccursive_cnt = 0;
@@ -116,7 +116,7 @@ class gekkon_lexer {
                 $step = $this->find_close($step, '(', ')');
                 if($step === false)
                 {
-                    $this->error[] = 'Cannot find the end of the string, '.$current." - expected";
+                    $this->error.= "Cannot find the end of the string, ) - expected\n";
                     return false;
                 }
             }
@@ -125,7 +125,7 @@ class gekkon_lexer {
                 $step = $this->find_close($step, $current, $current);
                 if($step === false)
                 {
-                    $this->error[] = 'Cannot find the end of the string, '.$current." - expected";
+                    $this->error.= 'Cannot find the end of the string, '.$current." - expected\n";
                     return false;
                 }
             }
@@ -173,7 +173,7 @@ class gekkon_lexer {
                         $i = $this->find_close($i, $current, $current);
                         if($i === false)
                         {
-                            $this->error[] = 'Cannot find the end of the string, '.$current." - expected";
+                            $this->error .= 'Cannot find the end of the string, '.$current." - expected\n";
                             return false;
                         }
                         continue;
@@ -216,13 +216,13 @@ class gekkon_lexer {
                     $i = $this->find_close($this->step, $c, $c);
                     if($i === false)
                     {
-                        $this->error[] = 'Cannot find the end of the string, '.$c." - expected";
+                        $this->error .= 'Cannot find the end of the string, '.$c." - expected\n";
                         return 'exit';
                     }
                     else
                     {
                         $word = substr($this->str, $this->step,
-                                $i - $this->step + 1);
+                            $i - $this->step + 1);
                         $this->save($word, 's');
                         $word = '';
                         $this->step = $i;
@@ -234,7 +234,7 @@ class gekkon_lexer {
                     $i = $this->find_close($this->step, '(', ')');
                     if($i === false)
                     {
-                        $this->error[] = 'Cannot find the end of the string, '.$c." - expected";
+                        $this->error.= "Cannot find the end of the string, ) - expected\n";
                         return false;
                     }
                     else
@@ -243,7 +243,7 @@ class gekkon_lexer {
                         {
                             $i2 = $this->find_close($this->step, '(', ')', ',');
                             $word = substr($this->str, $this->step + 1,
-                                    $i2 - $this->step - 1);
+                                $i2 - $this->step - 1);
                             $this->save($word, 'e');
 
                             $word = '';

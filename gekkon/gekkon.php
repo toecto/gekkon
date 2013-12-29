@@ -15,6 +15,7 @@ class gekkon {
         $this->tpl_path = $tpl_path;
         $this->gekkon_path = dirname(__file__).'/';
         $this->compiler = false;
+        $this->display_errors = ini_get('display_errors') == 'on';
     }
 
     function register($name, $data)
@@ -35,7 +36,7 @@ class gekkon {
 
         if($tpl_time == 0)
                 return r_error('Template '.$tpl_name.' cannot be found at '.$tpl_file,
-                    'gekkon');
+                'gekkon');
 
         //if($bin_time<$tpl_time)
         {
@@ -132,13 +133,26 @@ class gekkon {
         return $bin_path.$bin_name.'.php';
     }
 
+    function error($msg, $object = false)
+    {
+        $message = 'Gekkon:';
+        if($object !== false) $message .= ' ['.$object.']';
+        $message .= ' '.nl2br($msg."\n");
+
+        if($this->display_errors)
+                echo '<div class="gekkon_error">'.$message.'</div>';
+
+        error_log(trim(strip_tags($message)));
+        return false;
+    }
+
 }
 
 //end of class -----------------------------------------------------------------
 
 function r_log($msg)
 {
-    
+
 }
 
 function r_error($msg)
@@ -146,3 +160,4 @@ function r_error($msg)
     echo $msg."<br>\n";
     return false;
 }
+

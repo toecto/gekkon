@@ -162,7 +162,7 @@ class gekkon_ll_parser {
     function parse($_str)
     {
         r_log('Parce '.$_str, 'gekkon_parser');
-        $this->error = array();
+        $this->error = '';
         if(is_string($_str))
         {
             $this_str = true;
@@ -181,10 +181,10 @@ class gekkon_ll_parser {
 
         array_push($_stack, array('s' => '$', 'k' => 0));
         array_push($_stack,
-                array(
+            array(
             's' => ($t = $this->_grammar[0]['left']),
             'k' => $_tree->go($_tree->add($t))
-                )
+            )
         );
 
         $limit = 0;
@@ -193,7 +193,7 @@ class gekkon_ll_parser {
             //$this->print_stack($_stack);
             if($limit++ > 1000)
             {
-                $this->error[] = 'gekkon_ll_parser: parsing limit reached';
+                $this->error.= "gekkon_ll_parser: parsing limit reached;\n";
                 return false;
             }
             r_log($_stack, 'gekkon_parser');
@@ -224,13 +224,13 @@ class gekkon_ll_parser {
                     if(''.$this->_fsm_map[$st][$char_type] != 'none')
                     {
                         $tt = strlen($x = $this->_grammar[$this->_fsm_map[$st][$char_type]]['right']);
-                        $save_st = $st;
+                        //$save_st = $st;
 
                         for($j = 0; $j < $tt; $j++)
                         {
                             $t = $x[$tt - $j - 1];
                             array_push($_stack,
-                                    array('s' => $t, 'k' => $_tree->add($t)));
+                                array('s' => $t, 'k' => $_tree->add($t)));
                         }
                     }
                 }
@@ -245,8 +245,10 @@ class gekkon_ll_parser {
                             if($now-- < 1) $tt.=$t['v'];
                         }
                     }
-                    $this->error[] = '[gekkon_ll_parser] Cannot parse from '.substr($tt,
-                                    0, -1);
+                    $tt = substr($tt, 0, -1);
+                    if($tt == '')
+                            $this->error.='Unexpected end of sequence '."\n";
+                    else $this->error.= 'Unexpected sequence "'.$tt."\"\n";
                     return false;
                 }
             }
@@ -259,11 +261,10 @@ class gekkon_ll_parser {
             {
                 foreach($_str as $t)
                 {
-                    $tt.=current($t);
+                    $tt.=$t['v'];
                 }
             }
-            $this->error[] = '[gekkon_ll_parser] Cannot parse from the end of '.substr($tt,
-                            0, -1);
+            $this->error.= 'Unexpected end of '.substr($tt, 0, -1)."\n";
             return false;
         }
         return $_tree;

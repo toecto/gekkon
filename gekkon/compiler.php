@@ -3,17 +3,13 @@
 //version 1.0
 
 
-class gekkon_compiler extends gekkon {
+class gekkon_compiler {
 
     function __construct(&$gekkon)
     {
-        $this->error = array();
-        $this->gekkon_path = $gekkon->gekkon_path;
-        $this->tpl_path = $gekkon->tpl_path;
-        $this->original_tpl_path = $gekkon->tpl_path;
-        $this->tpl_base_path = $gekkon->tpl_base_path;
-        $this->bin_path = $gekkon->bin_path;
-
+        $this->errors = array();
+        $this->gekkon = $gekkon;
+        $this->tpl_name = '';
         include_once $gekkon->gekkon_path.'ll_parser.php';
         include_once $gekkon->gekkon_path.'lexer.php';
 
@@ -26,7 +22,7 @@ class gekkon_compiler extends gekkon {
         $data = $this->arg_lexer->parse_expression($str);
         if($data === false)
         {
-            $this->error = array_merge($this->error, $this->arg_lexer->error);
+            $this->error($this->arg_lexer->error, 'arg_lexer');
             return false;
         }
         $rez = '';
@@ -49,7 +45,7 @@ class gekkon_compiler extends gekkon {
         $rez = $this->arg_compiler->compile($str);
         if($rez === false)
         {
-            $this->error = array_merge($this->error, $this->arg_compiler->error);
+            $this->error($this->arg_compiler->error, 'arg_compiler');
         }
         return $rez;
     }
@@ -57,16 +53,16 @@ class gekkon_compiler extends gekkon {
     function compile($tpl_name)
     {
         $this->error = array();
-        $this->tpl_path = $this->original_tpl_path;
-        $tpl_file = $this->full_tpl_path($tpl_name);
+        $this->tpl_path = $this->gekkon->tpl_path;
+        $tpl_file = $this->gekkon->full_tpl_path($tpl_name);
         if(!is_file($tpl_file))
         {
-            $this->error[] = '[gekkon_compiller] Cannot find '.$tpl_file;
+            $this->error('Cannot find '.$tpl_file, 'gekkon_compiller');
             return false;
         }
 
         $this->file_list = array();
-        $this->bin_file = $this->full_bin_path($tpl_name);
+        $this->bin_file = $this->gekkon->full_bin_path($tpl_name);
         if(strpos($this->bin_file, '/!') !== false) $this->tpl_path = '';
 
         $this->get_file_list();
@@ -88,10 +84,11 @@ class gekkon_compiler extends gekkon {
     function compile_file($tpl_name)
     {
         $this->tpl_name = $tpl_name;
-        return "\nfunction ".$this->fn_name($tpl_name)."(&\$gekkon){\n".
-                '//Template '.$this->tpl_path.$tpl_name.";\n".
-                $this->compile_str(file_get_contents($this->full_tpl_path($tpl_name))).
-                "}\n";
+        return "\nfunction ".$this->gekkon->fn_name($tpl_name)."(&\$gekkon){\n".
+            '//Template '.$this->tpl_path.$tpl_name.";\n".
+            $this->compile_str(file_get_contents($this->gekkon->full_tpl_path($tpl_name))).
+            "}\n";
+        $this->tpl_name = '';
     }
 
     function compile_static($_str)
@@ -103,13 +100,14 @@ class gekkon_compiler extends gekkon {
     function compile_str($_str, $parent = false)
     {
         if($parent === false)
-                $parent = array(
+        {
+            $parent = array(
                 'line' => 1,
                 'name' => 'root',
                 'parent' => 'none'
             );
+        }
         $data = $this->parse_tag_content($_str, $parent);
-        print_r($data);
         return $this->compile_parsed_str($data);
     }
 
@@ -120,8 +118,14 @@ class gekkon_compiler extends gekkon {
         {
             if($tag['name'] == '<static>')
                     $rez.=$this->compile_static($tag['content']);
-            else $rez.=$tag['handler']($this, $tag);
+            else
+            {
+                $t = $tag['handler']($this, $tag);
+                if($t !== false) $rez.=$t;
+                else $this->flush_errors();
+            }
         }
+
         return $rez;
     }
 
@@ -131,8 +135,8 @@ class gekkon_compiler extends gekkon {
         $line = 0;
         while($_str != '')
         {
-            if(!preg_match('/\{(\s*[\@\$a-z_A-Z]+)(\s*[^\}\n]+)?\}/us', $_str,
-                            $_tag, PREG_OFFSET_CAPTURE))
+            if(!preg_match('/\{\s*([\@\$a-z_A-Z]+)(\s*[^\}\n]+)?\}/us', $_str,
+                    $_tag, PREG_OFFSET_CAPTURE))
             {
                 $rez[] = array('name' => '<static>', 'content' => $_str);
                 break;
@@ -150,14 +154,15 @@ class gekkon_compiler extends gekkon {
             );
 
             $rez[] = array('name' => '<static>', 'content' => substr($_str, 0,
-                        $open_start));
+                    $open_start));
             $_str = substr($_str, $open_start + $open_len);
 
             $_tag = $this->load_tag($_tag);
 
             if(($_tag = $this->parse_end_of_tag($_tag, $_str)) === false)
             {
-                $this->error[] = '[gekkon_compiler] Cannot fine close tag for '.$_tag['name'];
+                $this->error('Cannot fine close tag for '.$_tag['name'],
+                    'gekkon_compiller');
                 return false;
             }
 
@@ -165,7 +170,7 @@ class gekkon_compiler extends gekkon {
             {
                 $line+=substr_count($_tag['content'], "\n");
                 $_str = substr($_str,
-                        $_tag['close_start'] + $_tag['close_length']);
+                    $_tag['close_start'] + $_tag['close_length']);
             }
             //$_tag['handler']($this,$_tag)
             $rez[] = $_tag;
@@ -182,7 +187,7 @@ class gekkon_compiler extends gekkon {
             $_tag['raw_args'] = $_tag['name'].$_tag['raw_args'];
             $_tag['name'] = 'echo';
         }
-        if(is_file($tag_file = $this->gekkon_path.'tags/'.$_tag['name'].'.php'))
+        if(is_file($tag_file = $this->gekkon->gekkon_path.'tags/'.$_tag['name'].'.php'))
         {
             include_once $tag_file;
             if(function_exists($_tag['handler'] = 'gekkon_tag_'.$_tag['name']))
@@ -207,9 +212,9 @@ class gekkon_compiler extends gekkon {
             $now = 0;
 
             preg_match_all('/{\s*'.$_tag['name'].'\b/Us', $_str, $m1,
-                    PREG_OFFSET_CAPTURE);
+                PREG_OFFSET_CAPTURE);
             preg_match_all('/{\s*\/'.$_tag['name'].'\s*}/Us', $_str, $m2,
-                    PREG_OFFSET_CAPTURE);
+                PREG_OFFSET_CAPTURE);
 
             foreach($m1[0] as $item)
             {
@@ -252,14 +257,14 @@ class gekkon_compiler extends gekkon {
 
     function get_file_list($dir = '')
     {
-        $list = scandir($this->tpl_base_path.$this->tpl_path.$dir);
+        $list = scandir($this->gekkon->tpl_base_path.$this->tpl_path.$dir);
         foreach($list as $file)
         {
             if($file[0] != '.')
             {
-                if(is_dir($this->tpl_base_path.$this->tpl_path.$dir.$file))
+                if(is_dir($this->gekkon->tpl_base_path.$this->tpl_path.$dir.$file))
                         $this->get_file_list($dir.$file.'/');
-                else if(strrchr($file, '.') == '.tpl' && $this->bin_file == $this->full_bin_path($dir.$file))
+                else if(strrchr($file, '.') == '.tpl' && $this->bin_file == $this->gekkon->full_bin_path($dir.$file))
                         $this->file_list[] = $dir.$file;
             }
         }
@@ -289,6 +294,35 @@ class gekkon_compiler extends gekkon {
         return $_rez;
     }
 
+    function error($msg, $object = false, $line = false)
+    {
+        $message = '';
+        if($object !== false) $message .= '[<b>'.$object.'</b>] ';
+        $message .= $msg.' ';
+
+        if($line !== false)
+        {
+            if($this->tpl_name !== '')
+                    $message .= 'in <b>"'.$this->tpl_name.'"</b> ';
+            $message .= 'on line '.$line.' ';
+        }
+
+        $this->errors[] = $message;
+
+        return false;
+    }
+
+    function flush_errors()
+    {
+
+        $this->errors = array_reverse($this->errors);
+        $message = implode("\n", $this->errors);
+
+        $this->gekkon->error($message, 'Compiler');
+        $this->errors = array();
+        return false;
+    }
+
 }
 
 // End Of Class ----------------------------------------------------------------
@@ -297,9 +331,9 @@ class gekkon_compiler extends gekkon {
 
 class gekkon_arg_compiler {
 
-    function __construct(&$gekkon)
+    function __construct(&$compiler)
     {
-        $this->gekkon = $gekkon;
+        $this->compiler = $compiler;
 
         $this->parser = new gekkon_ll_parser(array(
             'S' => 'VX | IX | sX | (e)X | D ',
@@ -318,17 +352,16 @@ class gekkon_arg_compiler {
 
     function compile($_str)
     {
-        $this->error = array();
+        $this->error = '';
         $_str = trim($_str);
         if($_str == '') return '';
         if($_str == '@') return '@';
 
-        $_data = $this->gekkon->arg_lexer->parse_variable($_str);
+        $_data = $this->compiler->arg_lexer->parse_variable($_str);
 
         if(($_data = $this->parser->parse($_data)) === false)
         {
-            $this->error[] = '[gekkon_arg_compiler] Cannot compile '.$_str;
-            $this->error = array_merge($this->error, $this->parser->error);
+            $this->error .= 'Cannot compile '.$_str.'; '.$this->parser->error;
             return false;
         }
         $this->rez = '';
@@ -359,7 +392,7 @@ class gekkon_arg_compiler {
     {
         $save_rez = $this->rez;
         $this->rez = '';
-        $rez = $this->gekkon->compile_exp(current($_data));
+        $rez = $this->compiler->compile_exp(current($_data));
         if($scope === true) $rez = '('.$rez.')';
         $this->rez = $save_rez.$rez;
     }
