@@ -135,7 +135,7 @@ class gekkon_compiler {
         $line = 0;
         while($_str != '')
         {
-            if(!preg_match('/\{\s*([\@\$a-z_A-Z]+)(\s*[^\}\n]+)?\}/us', $_str,
+            if(!preg_match('/\{\s*([\@\$\(a-z_A-Z]+)(\s*[^\}\n]+)?\}/us', $_str,
                     $_tag, PREG_OFFSET_CAPTURE))
             {
                 $rez[] = array('name' => '<static>', 'content' => $_str);
@@ -182,7 +182,7 @@ class gekkon_compiler {
     {
         $_tag['type'] = 0;
 
-        if($_tag['name'][0] == '@' || $_tag['name'][0] == '$')
+        if($_tag['name'][0] == '@' || $_tag['name'][0] == '$' || $_tag['name'][0] == '(')
         {
             $_tag['raw_args'] = $_tag['name'].$_tag['raw_args'];
             $_tag['name'] = 'echo';
