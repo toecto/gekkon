@@ -7,8 +7,8 @@ function gekkon_tag_if($compiler, $_tag)
     $exp = $compiler->compile_exp($_tag['raw_args']);
 
     if($exp === false)
-            return $compiler->error('Cannot compile expression "'.$_tag['raw_args'].'"',
-                'Tag IF', $_tag['line']);
+            return $compiler->error_in_tag('Cannot compile expression "'.$_tag['raw_args'].'"',
+                $_tag);
 
     $_rez = "if(".$exp."){\n";
     return $_rez.

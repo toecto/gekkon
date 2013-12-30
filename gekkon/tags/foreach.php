@@ -4,23 +4,24 @@ function gekkon_tag_foreach($compiler, $_tag)
 {
     $args = $compiler->parse_args($_tag['raw_args']);
     if($args === false)
-            return r_error('gekkon: tag foreach: Cannot compile args');
+            return $compiler->error_in_tag('Cannot parse args "'.$_tag['raw_args'].'"',
+                $_tag);
 
     $meta_init = '';
     $meta_body = '';
     if(isset($args['meta']))
     {
         $meta_name = $args['meta'];
-        $meta_init = "\$t=count(".$args['from'].");
+        $meta_init = "\$_gkn_temp=count(".$args['from'].");
         ".$meta_name."=array(
         'first'=>1,
-        'last'=>(\$t==1?1:0),
+        'last'=>(\$_gkn_temp==1?1:0),
         'counter0'=>0,
         'counter'=>1,
-        'revcounter0'=>\$t-1,
-        'revcounter'=>\$t,
-        'total'=>\$t,
-        );";
+        'revcounter0'=>\$_gkn_temp-1,
+        'revcounter'=>\$_gkn_temp,
+        'total'=>\$_gkn_temp,
+        );\n";
 
         $meta_body = "
         ".$meta_name."['counter0']=".$meta_name."['counter']++;
@@ -30,14 +31,25 @@ function gekkon_tag_foreach($compiler, $_tag)
         ";
     }
 
+    $loop_start = 'if(!empty('.$args['from'].")){\n";
     if(isset($args['key']))
-            $loop_start = 'foreach('.$args['from'].' as '.$args['key'].'=>'.$args['item']."){\n";
+            $loop_start .= 'foreach('.$args['from'].' as '.$args['key'].'=>'.$args['item']."){\n";
     else $loop_start .= 'foreach('.$args['from'].' as '.$args['item']."){\n";
 
+    $content = $compiler->parse_tag_content($_tag['content'], $_tag);
+    $content = $compiler->split_parsed_str($content, 'empty');
+    $empty = '';
+    if(isset($content[1]))
+    {
+        $empty = 'else {'.
+            $compiler->compile_parsed_str($content[1]).
+            "}\n";
+    }
     return $meta_init.
         $loop_start.
-        $compiler->compile_str($_tag['content'], $_tag).
+        $compiler->compile_parsed_str($content[0]).
         $meta_body.
-        "}\n";
+        "}}\n".
+        $empty;
 }
 

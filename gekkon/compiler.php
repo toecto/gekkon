@@ -110,10 +110,11 @@ class GekkonCompiler {
             $parent = array(
                 'line' => 1,
                 'name' => 'root',
-                'parent' => 'none'
+                'parent_name' => 'none'
             );
         }
         $data = $this->parse_tag_content($_str, $parent);
+        $this->flush_errors();
         return $this->compile_parsed_str($data);
     }
 
@@ -141,8 +142,8 @@ class GekkonCompiler {
         $line = 0;
         while($_str != '')
         {
-            if(!preg_match('/\{\s*([\@\$\(a-z_A-Z]+)(\s*[^\}\n]+)?\}/us', $_str,
-                    $_tag, PREG_OFFSET_CAPTURE))
+            if(!preg_match('/\{(\s*([\@\$\(a-z_A-Z]+)(\s*[^\}\n]+)?)\}/us',
+                    $_str, $_tag, PREG_OFFSET_CAPTURE))
             {
                 $rez[] = array('name' => '<static>', 'content' => $_str);
                 break;
@@ -154,9 +155,11 @@ class GekkonCompiler {
                     $line+=substr_count($_str, "\n", 0, $open_start);
             $_tag = array(
                 'parent_name' => $_parent['name'],
-                'name' => $_tag[1][0],
-                'raw_args' => isset($_tag[2][0]) ? $_tag[2][0] : '',
+                'name' => $_tag[2][0],
+                'raw_args' => isset($_tag[3][0]) ? $_tag[3][0] : '',
                 'line' => $_parent['line'] + $line,
+                'raw' => $_tag[0][0],
+                'raw_in' => $_tag[1][0],
             );
 
             $rez[] = array('name' => '<static>', 'content' => substr($_str, 0,
@@ -165,20 +168,26 @@ class GekkonCompiler {
 
             $_tag = $this->load_tag($_tag);
 
-            if(($_tag = $this->parse_end_of_tag($_tag, $_str)) === false)
+            if($_tag['type'] != 0)
             {
-                $this->error('Cannot fine close tag for '.$_tag['name'],
-                    'gekkon_compiller');
-                return false;
-            }
+                if(($_tag = $this->parse_end_of_tag($_tag, $_str)) === false)
+                {
+                    $this->error('Cannot fine close tag for '.$_tag['name'],
+                        'gekkon_compiller');
+                    return false;
+                }
 
-            if($_tag['close_start'] != 0)
-            {
-                $line+=substr_count($_tag['content'], "\n");
-                $_str = substr($_str,
-                    $_tag['close_start'] + $_tag['close_length']);
+                if($_tag['close_start'] != 0)
+                {
+                    $line+=substr_count($_tag['content'], "\n");
+                    $_str = substr($_str,
+                        $_tag['close_start'] + $_tag['close_length']);
+                }
             }
-            //$_tag['handler']($this,$_tag)
+            else
+            {
+                $_tag = array('name' => '<static>', 'content' => $_tag['raw']);
+            }
             $rez[] = $_tag;
         }
         return $rez;
@@ -190,9 +199,10 @@ class GekkonCompiler {
 
         if($_tag['name'][0] == '@' || $_tag['name'][0] == '$' || $_tag['name'][0] == '(')
         {
-            $_tag['raw_args'] = $_tag['name'].$_tag['raw_args'];
+            $_tag['raw_args'] = $_tag['raw_in'];
             $_tag['name'] = 'echo';
         }
+
         if(is_file($tag_file = $this->gekkon->gekkon_path.'tags/'.$_tag['name'].'.php'))
         {
             include_once $tag_file;
@@ -300,6 +310,11 @@ class GekkonCompiler {
         return $_rez;
     }
 
+    function error_in_tag($msg, $tag)
+    {
+        return $this->error($msg, 'Tag: '.$tag['name'], $tag['line']);
+    }
+
     function error($msg, $object = false, $line = false)
     {
         $message = '';
@@ -320,12 +335,14 @@ class GekkonCompiler {
 
     function flush_errors()
     {
+        if(count($this->errors) > 0)
+        {
+            $this->errors = array_reverse($this->errors);
+            $message = implode("\n", $this->errors);
 
-        $this->errors = array_reverse($this->errors);
-        $message = implode("\n", $this->errors);
-
-        $this->gekkon->error($message, 'Compiler');
-        $this->errors = array();
+            $this->gekkon->error($message, 'Compiler');
+            $this->errors = array();
+        }
         return false;
     }
 
@@ -348,6 +365,25 @@ class GekkonCompiler {
     function getUID()//it is a relatively unique id, for uid inside of one template
     {
         return $this->uid++;
+    }
+
+    function split_parsed_str($data, $tag_name, $keep_spliter = false)
+    {
+        $rez = array();
+        $key = 0;
+        $rez[$key] = array();
+        foreach($data as $tag)
+        {
+
+            if($tag['name'] == $tag_name)
+            {
+                $key++;
+                $rez[$key] = array();
+                if($keep_spliter) $rez[$key][] = $tag;
+            }
+            else $rez[$key][] = $tag;
+        }
+        return $rez;
     }
 
 }

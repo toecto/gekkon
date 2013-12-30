@@ -1,6 +1,7 @@
 <?php
 
-function gekkon_tag_else_single($gekkon_compiler,$_tag)
+function gekkon_tag_else_single($compiler, $_tag)
 {
-	return "}else{\n";
+    return "}else{\n";
 }
+
