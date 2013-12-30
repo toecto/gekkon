@@ -13,9 +13,10 @@ class TestCase {
         $this->called_cls = get_called_class();
     }
 
-    function run ()
+    function run()
     {
-        $test_list = array_filter(get_class_methods($this->called_cls), function($name){
+        $test_list = array_filter(get_class_methods($this->called_cls), function ($name)
+        {
             return substr($name, 0, 5) === 'test_';
         });
         $this->stat['tests'] = count($test_list);
@@ -31,7 +32,8 @@ class TestCase {
         if ($this->stat['failures'])
         {
             echo "FAILURES!\n";
-        } else {
+        } else
+        {
             echo "SUCCESS!\n";
         }
         echo "Tests: ".$this->stat['tests'].", Assertions: ".$this->stat['asserts'].", Failures: ".$this->stat['failures'].".";
@@ -40,10 +42,11 @@ class TestCase {
     function assertEquals($expected, $actual)
     {
         $this->stat['asserts'] += 1;
-        if ($expected===$actual)
+        if ($expected === $actual)
         {
             return true;
-        } else {
+        } else
+        {
             echo "\nFailed asserting that \"".$actual."\" matches expected \"".$expected."\".\n";
             $this->stat['failures'] += 1;
             return false;

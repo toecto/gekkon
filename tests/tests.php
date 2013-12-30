@@ -5,7 +5,7 @@ require_once "test_case.php";
 error_reporting(0);
 
 class Test extends TestCase {
-    
+
     function get_gekkon()
     {
         return new Gekkon(dirname(__file__), dirname(__file__).'/tpl/tpl_bin/', '/tpl/');
@@ -38,7 +38,7 @@ class Test extends TestCase {
     function test_hash()
     {
         $gekkon = $this->get_gekkon();
-        $gekkon->register('var', array('key'=>"true"));
+        $gekkon->register('var', array('key' => "true"));
         $output = $gekkon->get_display("test_hash.tpl");
         $this->assertEquals("true", trim($output));
     }
@@ -47,7 +47,7 @@ class Test extends TestCase {
     {
         $gekkon = $this->get_gekkon();
         $gekkon->register('key', 'key');
-        $gekkon->register('var', array('key'=>"true"));
+        $gekkon->register('var', array('key' => "true"));
         $output = $gekkon->get_display("test_hash_var.tpl");
         $this->assertEquals("true", trim($output));
     }
@@ -55,7 +55,7 @@ class Test extends TestCase {
     function test_hash_sub()
     {
         $gekkon = $this->get_gekkon();
-        $gekkon->register('var', array('key'=> array("subkey"=> "true")));
+        $gekkon->register('var', array('key' => array("subkey" => "true")));
         $output = $gekkon->get_display("test_hash_sub.tpl");
         $this->assertEquals("true", trim($output));
     }
@@ -65,7 +65,7 @@ class Test extends TestCase {
         $gekkon = $this->get_gekkon();
         $gekkon->register('key', 'key');
         $gekkon->register('subkey', 'subkey');
-        $gekkon->register('var', array('key'=> array("subkey"=> "true")));
+        $gekkon->register('var', array('key' => array("subkey" => "true")));
         $output = $gekkon->get_display("test_hash_var_sub.tpl");
         $this->assertEquals("true", trim($output));
     }
@@ -172,7 +172,7 @@ class Test extends TestCase {
     function test_tag_foreach_key()
     {
         $gekkon = $this->get_gekkon();
-        $gekkon->register('items', array("one"=>1, "two"=>2, "three"=>3));
+        $gekkon->register('items', array("one" => 1, "two" => 2, "three" => 3));
         $output = $gekkon->get_display("test_tag_foreach_key.tpl");
         $this->assertEquals("one=1|two=2|three=3", trim($output));
     }
