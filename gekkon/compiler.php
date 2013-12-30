@@ -115,6 +115,7 @@ class GekkonCompiler {
         }
         $data = $this->parse_tag_content($_str, $parent);
         $this->flush_errors();
+        if($data === false) return false;
         return $this->compile_parsed_str($data);
     }
 
@@ -170,13 +171,13 @@ class GekkonCompiler {
 
             if($_tag['type'] != 0)
             {
-                if(($_tag = $this->parse_end_of_tag($_tag, $_str)) === false)
+                if(($t = $this->parse_end_of_tag($_tag, $_str)) === false)
                 {
-                    $this->error('Cannot fine close tag for '.$_tag['name'],
-                        'gekkon_compiller');
+                    $this->error_in_tag('Cannot find closing tag'
+                        , $_tag);
                     return false;
                 }
-
+                $_tag = $t;
                 if($_tag['close_start'] != 0)
                 {
                     $line+=substr_count($_tag['content'], "\n");

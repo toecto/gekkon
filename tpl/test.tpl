@@ -23,7 +23,7 @@ rr{$a.pow(2)}<br>
 </table>
 
 <table border>
-    {foreach from=$arr_empty. item=$value key=$key meta=@data}
+    {foreach from=$arr_empty item=$value key=$key meta=@data}
         <tr>
             <td>{$key}</td>
             <td>{$value}</td>
@@ -31,7 +31,7 @@ rr{$a.pow(2)}<br>
         </tr>
         {empty}
         <tr>
-            <td>NoData{$aa.}</td>
+            <td>NoData</td>
             <td></td>
             <td></td>
         </tr>
