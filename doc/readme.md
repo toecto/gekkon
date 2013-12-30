@@ -62,8 +62,7 @@ Also, you can use variables to access the value of an associative array as a key
 |:------------|:-------------|
 | `{$var.$key_name}` | `$var[$key_name];` |
 | `{$var.$key_name1.$key_name2}` | `$var[$key_name1][$key_name2];` |
-| `{$var.$key_name&$sub_key_name}` | `$var[$key_name[$sub_key_name]];` |
-| `{$var.$key_name1&$sub_key_name1.$key_name2}` | `$var[$key_name1[$sub_key_name1]][$key_name2];` |
+
 
 #### Functions
 
@@ -161,29 +160,9 @@ Displays all debugging information, including the current context.
 Loads & register custom tag library in template scope.
 
 	{load news_tags.php}
-
-<br>**{include}**<br>
-Includes a template by file name. Template name can be variable.
-
-	{include catalog.tpl}
-	{include $catalog_tpl}
-
-
-<br>**{php}...{/php}**<br>
-Inserts native PHP code. <br>
-Access to template variable can be derived from array `$this->data['var_name']`.
-
-	{php}
-		echo $this->data['var_name'];
-	{/php}
-
-
-<br>**{cache}...{/cache}**<br>
-In addition to compiling the tag's contens is executed and stored as the result HTML code.
-
-	{cache}
-		...
-	{/cache}
+	
+	// Or without php extension.
+	{load news_tags}
 
 
 <br>**{now}**<br>
@@ -216,16 +195,9 @@ Conveniently used to insert JavaScript code that may conflict with Gekkon syntax
 	{/static}
 
 
-<br>**{for}...{/for}**<br>
-Cycle operator. Works similarly to the operator in php.<br>
-
-	{for from=1 to=10 key=$key}
-    	<li>{$key}</li>
-	{/for}
-
 
 <br>**{foreach}...{empty}...{/foreach}**<br>
-Iterates passed array.<br>
+Operator cycle iterates passed array.<br>
 You can use `{empty}` condition for ease of handling when the passed array is empty.
 
 	{foreach from=$data item=$item key=$key}
