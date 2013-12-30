@@ -4,15 +4,13 @@ ww{$a}<br>
 ee{$a+=2}
 rr{$a.pow(2)}<br>
 
-{if $a>3.}
-tt{@ "String".strtoupper()}<br>
-yy{@ 4.pow(2)}{@ 4.pow(2)}<br>
-{/if}
-yy{@ 4.pow(2)}<br>
-{if $a>3}
-tt{@ "String".strtoupper()}<br>
-yy{@ 4.pow(2)}{@ 4.pow(2)}<br>
-{/if}{if $a>3}
-tt{@ "String".strtoupper()}<br>
-yy{@ 4.pow(2)}{@ 4.pow(2)}<br>
-{/if}
+{set $arr=array('aaa','bbb','ccc')}
+<table border>
+{foreach from=$arr item=$value key=$key meta=$data}
+<tr>
+    <td>{$key}</td>
+    <td>{$value}</td>
+    <td>{$data.print_r()}</td>
+</tr>
+{/foreach}
+</table>

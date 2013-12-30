@@ -10,6 +10,7 @@ class GekkonCompiler {
         $this->errors = array();
         $this->gekkon = $gekkon;
         $this->tpl_name = '';
+        $this->uid = 0;
         include_once $gekkon->gekkon_path.'ll_parser.php';
         include_once $gekkon->gekkon_path.'lexer.php';
 
@@ -39,7 +40,7 @@ class GekkonCompiler {
         if(!$this->check_exp_syntax($rez))
         {
             $this->error('Arguments are ok, but cannot compile the expression "'.$str.'"',
-                'gekkon_compiler');
+                'compile_exp');
             return false;
         }
         return $rez;
@@ -342,6 +343,11 @@ class GekkonCompiler {
     function check_exp_syntax($code)
     {
         return GekkonCompiler::check_syntax('$x='.$code.';');
+    }
+
+    function getUID()//it is a relatively unique id, for uid inside of one template
+    {
+        return $this->uid++;
     }
 
 }
