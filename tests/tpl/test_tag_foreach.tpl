@@ -1,1 +1,1 @@
-{foreach from=$items item=$item}{$item}{/foreach}
+{foreach from=$items item=$item}{$item}{empty}empty{/foreach}

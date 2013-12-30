@@ -153,6 +153,14 @@ class Test extends TestCase {
         $this->assertEquals("123", trim($output));
     }
 
+    function test_tag_foreach_empty()
+    {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('items', array());
+        $output = $gekkon->get_display("test_tag_foreach.tpl");
+        $this->assertEquals("empty", trim($output));
+    }
+
     function test_tag_foreach_meta()
     {
         $gekkon = $this->get_gekkon();
