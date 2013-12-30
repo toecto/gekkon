@@ -186,13 +186,13 @@ Result:
 	<p><a href='/'>Home </a></p>
 
 
-<br>**{static}...{/static}**<br>
+<br>**{no_parse}...{/no_parse}**<br>
 Stops compiling the contents enclosed in this tag.<br>
 Conveniently used to insert JavaScript code that may conflict with Gekkon syntax.
 
-	{static}
+	{no_parse}
     	<script type="text/javascript">...JS code...</script>
-	{/static}
+	{/no_parse}
 
 
 
@@ -267,20 +267,6 @@ Optionally, you can specify the following params:
 Declares a global variable.
 
 	{set $post_total = blog.post.count()}
-
-
-
-<br>**{with}**<br>
-Declares a local variable is accessible inside the tag `with`.
-You can assign several variables at once.
-
-	{with $post_total = blog.post.count()}
-    	Total {$post_total} news.
-	{/with}
-
-	{with $alpha = 1 $beta = 2}
-    	...
-	{/with}
 
 
 <br>**{ifchange}**<br>

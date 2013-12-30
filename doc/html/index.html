@@ -189,12 +189,12 @@ Removes spaces between HTML tags, including tabs and newlines.</p>
 {/spaceless}</code></pre>
 <p>Result:</p>
 <pre><code>&lt;p&gt;&lt;a href=&#39;/&#39;&gt;Home &lt;/a&gt;&lt;/p&gt;</code></pre>
-<p><br><strong>{static}...{/static}</strong><br>
+<p><br><strong>{no_parse}...{/no_parse}</strong><br>
 Stops compiling the contents enclosed in this tag.<br>
 Conveniently used to insert JavaScript code that may conflict with Gekkon syntax.</p>
-<pre><code>{static}
+<pre><code>{no_parse}
     &lt;script type=&quot;text/javascript&quot;&gt;...JS code...&lt;/script&gt;
-{/static}</code></pre>
+{/no_parse}</code></pre>
 <p><br><strong>{foreach}...{empty}...{/foreach}</strong><br>
 Operator cycle iterates passed array.<br>
 You can use <code>{empty}</code> condition for ease of handling when the passed array is empty.</p>
@@ -289,16 +289,6 @@ Optionally, you can specify the following params:</p>
 <p><br><strong>{set}</strong><br>
 Declares a global variable.</p>
 <pre><code>{set $post_total = blog.post.count()}</code></pre>
-<p><br><strong>{with}</strong><br>
-Declares a local variable is accessible inside the tag <code>with</code>.
-You can assign several variables at once.</p>
-<pre><code>{with $post_total = blog.post.count()}
-    Total {$post_total} news.
-{/with}
-
-{with $alpha = 1 $beta = 2}
-    ...
-{/with}</code></pre>
 <p><br><strong>{ifchange}</strong><br>
 Check if a value has changed from the last loop iteration.
 This tag is used within a foreach loop and has two possible use cases:</p>
