@@ -5,12 +5,38 @@ ee{$a+=2}
 rr{$a.pow(2)}<br>
 
 {set $arr=array('aaa','bbb','ccc')}
+{set $arr_empty=array()}
 <table border>
-{foreach from=$arr item=$value key=$key meta=$data}
-<tr>
-    <td>{$key}</td>
-    <td>{$value}</td>
-    <td>{$data.print_r()}</td>
-</tr>
-{/foreach}
+    {foreach from=$arr item=$value key=$key meta=@data}
+        <tr>
+            <td>{$key}</td>
+            <td>{$value}</td>
+            <td>{@data.print_r()}</td>
+        </tr>
+        {empty}
+        <tr>
+            <td>NoData</td>
+            <td></td>
+            <td></td>
+        </tr>
+    {/foreach}
 </table>
+
+<table border>
+    {foreach from=$arr_empty item=$value key=$key meta=@data}
+        <tr>
+            <td>{$key}</td>
+            <td>{$value}</td>
+            <td>{@data.print_r()}</td>
+        </tr>
+        {empty}
+        <tr>
+            <td>NoData</td>
+            <td></td>
+            <td></td>
+        </tr>
+    {/foreach}
+</table>
+
+{no_parse}Wrong placed {empty}{/no_parse}
+{empty}

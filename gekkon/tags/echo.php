@@ -9,3 +9,4 @@ function gekkon_tag_echo_single($gekkon_compiler, $_tag)
 
     return 'echo '.$exp.";\n";
 }
+
