@@ -1,11 +1,13 @@
 <?php
 
-function gekkon_tag_echo_single($gekkon_compiler, $_tag)
+function gekkon_tag_echo_single($compiler, $_tag)
 {
     $_rez = '';
-    $exp = $gekkon_compiler->compile_exp($_tag['raw_args']);
+    $exp = $compiler->compile_exp($_tag['raw_args']);
 
-    if($exp === false) return r_error('gekkon: tag echo: Cannot compile args');
+    if($exp === false)
+            return $compiler->error_in_tag('gekkon: tag echo: Cannot compile args',
+                $_tag);
 
     return 'echo '.$exp.";\n";
 }

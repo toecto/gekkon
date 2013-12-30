@@ -297,7 +297,8 @@ class GekkonCompiler {
         {
             $t = strrpos($_str[$i], ' ');
             $val = substr($_str[$i], 0, $t);
-            $_rez[$name] = $this->compile_exp($val);
+            if(($_rez[$name] = $this->compile_exp($val)) === false)
+                    return false;
 
             $name = trim(substr($_str[$i], $t));
             $i++;
@@ -305,7 +306,8 @@ class GekkonCompiler {
         if(isset($_str[$cnt]))
         {
             $val = $_str[$cnt];
-            $_rez[$name] = $this->compile_exp($val);
+            if(($_rez[$name] = $this->compile_exp($val)) === false)
+                    return false;
         }
         return $_rez;
     }
