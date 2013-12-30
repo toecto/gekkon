@@ -1,0 +1,320 @@
+<h1 id="quick-start-guide-code-reference">Quick-Start Guide &amp; Code Reference</h1>
+<hr>
+<p>Gekkon is an easy-to-use &amp; fast PHP template engine that allows you to separate your HTML code from your PHP code.<br>
+This results in cleaner code that&#39;s easier to read and maintain.<br></p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Includes</li>
+<li>Loops</li>
+<li>Conditions</li>
+<li>Caching</li>
+<li>Debugging</li>
+<li>Сalling PHP functions</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<ul>
+<li>Download the Gekkon ZIP package and extract it to your project directory.</li>
+<li>Create an empty directory to store your template files.</li>
+<li>Create another empty directory to store your compiled versions of templates.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>Include the <code>gekkon.php</code> in your project.</p>
+<pre><code>include &quot;gekkon/gekkon.php&quot;;</code></pre>
+<p>Create a new instance of the Gekkon class passing the configuration parameters:</p>
+<ul>
+<li><code>$gekkon_path</code> — Full path to the Gekkon directory.</li>
+<li><code>$template_path</code> — Full path to template directory. (need read permission)</li>
+<li><code>$bin_path</code> — Full path to compiled templates directory. (need access to read and write)</li>
+</ul>
+<p>All paths must end with <code>/</code>.</p>
+<pre><code>$path = $_SERVER[&#39;DOCUMENT_ROOT&#39;];
+$gekkon = new Gekkon($path.&#39;/gekkon/&#39;, $path.&#39;/tpl_bin/&#39;, $path.&#39;tpl/&#39;);</code></pre>
+<h2 id="for-developers">For Developers</h2>
+<p>Use the <code>register()</code> method to assign variables to the template engine, so designers can use them in their template files:</p>
+<pre><code>$gekkon-&gt;register(&#39;variableName&#39;, $variableValue);</code></pre>
+<p>Use the <code>display()</code> method to display template by name:</p>
+<pre><code>$gekkon-&gt;display(&#39;main.tpl&#39;);</code></pre>
+<h2 id="for-designers">For Designers</h2>
+<p>A template contains variables or expressions, which get replaced with values when the template is evaluated, and tags, which control the logic of the template.</p>
+<ul>
+<li>Use <code>{$variableName}</code> markup in your template files to display the value of a variable defined in the PHP backend of your project.</li>
+<li>Use <code>{tagName}...HTML content...{/tagName}</code> markup in your template files to display dynamic content generated through foreach loops or conditional statements.</li>
+</ul>
+<h4 id="variables">Variables</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Template syntax</th>
+<th style="text-align:left">Description</th>
+<th style="text-align:left">PHP equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>{$var}</code></td>
+<td style="text-align:left">Display variable value.</td>
+<td style="text-align:left"><code>$var;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>{$var.0}</code><br><code>{$var.1.2}</code></td>
+<td style="text-align:left">Access to simple array values by index.</td>
+<td style="text-align:left"><code>$var[0];</code><br><code>$var[1][2];</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>{$var.key_name}</code>, <code>{$var.key_name.key_name}</code></td>
+<td style="text-align:left">Access to associative array values by key name.</td>
+<td style="text-align:left"><code>$var[&#39;key_name&#39;];</code> <code>$var[&#39;key_name&#39;][&#39;key_name&#39;];</code></td>
+</tr>
+</tbody>
+</table>
+<p>Also, you can use variables to access the value of an associative array as a key:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Template syntax</th>
+<th style="text-align:left">PHP equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>{$var.$key_name}</code></td>
+<td style="text-align:left"><code>$var[$key_name];</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>{$var.$key_name1.$key_name2}</code></td>
+<td style="text-align:left"><code>$var[$key_name1][$key_name2];</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="functions">Functions</h4>
+<p>You can call functions (including built-in PHP):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Template syntax</th>
+<th style="text-align:left">PHP equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>{$var.foo()}</code></td>
+<td style="text-align:left"><code>foo($var);</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>{$var.foo().bar()}</code></td>
+<td style="text-align:left"><code>bar(foo($var));</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>{$var.isset()}</code></td>
+<td style="text-align:left"><code>isset($var);</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>{$str.strlen()}</code></td>
+<td style="text-align:left"><code>strlen($str);</code></td>
+</tr>
+</tbody>
+</table>
+<p>object methods (without passing parameters):</p>
+<pre><code>{$obj-&gt;method_name()}</code></pre>
+<blockquote>
+<p>To access the object methods with parameters, use <code>{set}</code> template tag.</p>
+</blockquote>
+<p>and object fields:</p>
+<pre><code>{$obj-&gt;field_name}</code></pre>
+<h4 id="expressions">Expressions</h4>
+<pre><code>{$var + 1}
+{$var1 * $var2}</code></pre>
+<p>You can use the result of the expressions when accessing an associative array. To do this, you must enclose the expression in parentheses <code>()</code>.</p>
+<pre><code>{$var.($arr.0)}
+{$var.($arr.1.foo())}
+{$var.($arr.1.foo()).bar()}</code></pre>
+<h3 id="template-tags">Template tags</h3>
+<p>All template tags are contained within the structure.</p>
+<pre><code>{tag_name}</code></pre>
+<p>Tags may contain parameters:</p>
+<pre><code>{tag param}
+{tag param1 param2}</code></pre>
+<p>including a key-value format:</p>
+<pre><code>{tag key=$value}
+{tag key=$var.0}
+{tag key1=$value1 key2=$value2}</code></pre>
+<blockquote>
+<p>Order of the parameters does not matter</p>
+</blockquote>
+<h2 id="built-in-template-tags">Built-in template tags</h2>
+<p><strong>{comment}...{/comment}</strong>, <strong>{# .. #}</strong><br>
+Ignoring all code between the opening and closing <code>comment</code> tags.<br>
+Have a short form <code>#</code>.<br>
+This tag doesn&#39;t support nesting.</p>
+<pre><code>{comment}
+       &lt;p&gt;This is commented and don’t render. {$foo} {now}&lt;/p&gt;
+{/comment}
+
+{# &lt;p&gt;This is commented and don’t render. {$foo} {now}&lt;/p&gt; #}</code></pre>
+<p><br><strong>{csrf_token}</strong><br>
+This tag is used to protect against CSRF-attacks. <br>
+Displays hidden input containing the token.</p>
+<pre><code>{csrf_token}
+
+// &lt;input type=&#39;hidden&#39; name=&#39;csrf_token&#39; value=&#39;ZIPpLNMVYXEsKhYrT7mbnlnddLXfsn5k&#39; /&gt;`</code></pre>
+<p><br><strong>{cycle}</strong><br>
+Returns one of the passed arguments on each call. The first argument will be returned on the first call, the second on the second call and so on.<br>
+After the last argument, enumeration begins again from the first argument.
+Arguments can be variables.<br>
+This tag is most useful in the cycle.</p>
+<pre><code>{foreach from=$data item=$item}
+    &lt;tr class=&quot;{cycle &#39;row1&#39; &#39;row2&#39; $var1 $var2}&quot;&gt;
+         ...
+    &lt;/tr&gt;
+{/foreach}</code></pre>
+<p><br><strong>{debug}</strong><br>
+Displays all debugging information, including the current context.</p>
+<pre><code>{debug}</code></pre>
+<p><br><strong>{load}</strong><br>
+Loads &amp; register custom tag library in template scope.</p>
+<pre><code>{load news_tags.php}
+
+// Or without php extension.
+{load news_tags}</code></pre>
+<p><br><strong>{now}</strong><br>
+Displays the current date and/or time, with the ability to specify date format.</p>
+<pre><code>{now}
+{now &#39;Y-m-d H:i:s&#39;}</code></pre>
+<p><br><strong>{spaceless}...{/spaceless}</strong><br>
+Removes spaces between HTML tags, including tabs and newlines.</p>
+<pre><code>{spaceless}
+    &lt;p&gt;
+           &lt;a href=&#39;/&#39;&gt;Home &lt;/a&gt;
+    &lt;/p&gt;
+{/spaceless}</code></pre>
+<p>Result:</p>
+<pre><code>&lt;p&gt;&lt;a href=&#39;/&#39;&gt;Home &lt;/a&gt;&lt;/p&gt;</code></pre>
+<p><br><strong>{static}...{/static}</strong><br>
+Stops compiling the contents enclosed in this tag.<br>
+Conveniently used to insert JavaScript code that may conflict with Gekkon syntax.</p>
+<pre><code>{static}
+    &lt;script type=&quot;text/javascript&quot;&gt;...JS code...&lt;/script&gt;
+{/static}</code></pre>
+<p><br><strong>{foreach}...{empty}...{/foreach}</strong><br>
+Operator cycle iterates passed array.<br>
+You can use <code>{empty}</code> condition for ease of handling when the passed array is empty.</p>
+<pre><code>{foreach from=$data item=$item key=$key}
+    &lt;li&gt;{$item}&lt;/li&gt;
+{empty}
+     Sorry, items not found...
+{/foreach}</code></pre>
+<p>Also, you can specify the <code>meta</code> parameter, where declare a variable which will be contain meta-information about the counters of iteration.</p>
+<pre><code>{foreach from=$data item=$item meta=$loop}
+     &lt;li&gt;{$loop.counter} {$item}&lt;/li&gt;
+     {if $loop.last}
+         &lt;li&gt;...&lt;/li&gt;
+     {/if}
+{empty}
+     Sorry, items not found...
+{/foreach}</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Meta-property</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>$loop.counter</code></td>
+<td style="text-align:left">Loop counter starts from <code>1</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>$loop.counter0</code></td>
+<td style="text-align:left">Loop counter starts from <code>0</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>$loop.revcounter</code></td>
+<td style="text-align:left">Reverse loop counter, starts from <code>1</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>$loop.revcounter0</code></td>
+<td style="text-align:left">Reverse loop counter, starts from <code>0</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>$loop.first</code></td>
+<td style="text-align:left"><code>true</code> if it&#39;s the first iteration</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>$loop.last</code></td>
+<td style="text-align:left"><code>true</code> if it&#39;s the last iteration</td>
+</tr>
+</tbody>
+</table>
+<p><br><strong>{if}...{elseif}...{else}..{/if}</strong><br>
+This tag checks variable value and if the variable is <code>true</code> (variable is exists, is not empty and it&#39;s not <code>false</code>) displays the contents of the block.<br>
+Optionally, can be expanded by <code>elseif</code> and <code>else</code> tags.</p>
+<pre><code>{if $value == 0}
+    ...
+{elseif $value == 1}
+    ...
+{/if}</code></pre>
+<p><br><strong>{link}</strong><br>
+This tag generates HTML tags for including scripts and styles (based on file extension checking). <br>
+Optionally, you can specify the following params:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">param</th>
+<th style="text-align:left">description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>nocache</code></td>
+<td style="text-align:left">Adds to the query string, time of last file modification (timestamp).</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>min</code></td>
+<td style="text-align:left">Adds <code>.min</code> between name and extension of the file (If min-version is exist).</td>
+</tr>
+</tbody>
+</table>
+<pre><code>{link &#39;/css/style.css&#39;}  
+// &lt;link href=&quot;/css/style.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;/&gt;
+
+{link &#39;/js/common.js&#39;}  
+// &lt;script src=&quot;js/common.js&quot;&gt;&lt;/script&gt;
+
+{link &#39;/js/common.js&#39; nocache}  
+// &lt;script src=&quot;js/common.js?t=1387906949&quot;&gt;&lt;/script&gt;
+
+{link &#39;/js/common.js&#39; min nocache}  
+// &lt;script src=&quot;js/common.min.js?е=1387906949&quot;&gt;&lt;/script&gt;</code></pre>
+<p><br><strong>{set}</strong><br>
+Declares a global variable.</p>
+<pre><code>{set $post_total = blog.post.count()}</code></pre>
+<p><br><strong>{with}</strong><br>
+Declares a local variable is accessible inside the tag <code>with</code>.
+You can assign several variables at once.</p>
+<pre><code>{with $post_total = blog.post.count()}
+    Total {$post_total} news.
+{/with}
+
+{with $alpha = 1 $beta = 2}
+    ...
+{/with}</code></pre>
+<p><br><strong>{ifchange}</strong><br>
+Check if a value has changed from the last loop iteration.
+This tag is used within a foreach loop and has two possible use cases:</p>
+<p>Checks its own rendered contents against its previous state and only displays the content if it has changed:</p>
+<pre><code>{foreach from=$days item=$date}
+    {ifchange}&lt;b&gt;{$date.month}&lt;/b&gt;{/ifchange}
+{/foreach}</code></pre>
+<p>If given one or more variables, check whether any variable has changed:</p>
+<pre><code>{foreach from=$days item=$date}
+    {ifchange $date.month}...{/ifchange}
+{/foreach}</code></pre>
+<p>Also you can use an optional <code>{else}</code> condition:</p>
+<pre><code>{foreach from=$days item=$date}
+    {ifchange $date.month}
+        {cycle &#39;row1&#39; &#39;row2&#39;}
+    {else}
+        row3
+    {/ifchange}
+{/foreach}</code></pre>
