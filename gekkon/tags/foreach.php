@@ -23,10 +23,8 @@ function gekkon_tag_foreach($compiler, $_tag)
         );";
 
         $meta_body = "
-        ".$meta_name."['counter0']++;
-        ".$meta_name."['counter']++;
-        ".$meta_name."['revcounter0']--;
-        ".$meta_name."['revcounter']--;
+        ".$meta_name."['counter0']=".$meta_name."['counter']++;
+        ".$meta_name."['revcounter']=".$meta_name."['revcounter0']--;
         ".$meta_name."['first']=0;
         ".$meta_name."['last']=(".$meta_name."['revcounter0']==0?1:0);
         ";
