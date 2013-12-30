@@ -13,47 +13,7 @@ class GekkonCompiler {
         $this->uid = 0;
         include_once $gekkon->gekkon_path.'ll_parser.php';
         include_once $gekkon->gekkon_path.'lexer.php';
-
-        $this->arg_compiler = new gekkon_arg_compiler($this);
-        $this->arg_lexer = new GekkonLexer();
-    }
-
-    function compile_exp($str)
-    {
-        $data = $this->arg_lexer->parse_expression($str);
-        if($data === false)
-        {
-            $this->error($this->arg_lexer->error, 'arg_lexer');
-            return false;
-        }
-        $rez = '';
-        foreach($data as $item)
-        {
-            if($item['t'] == 'l') $rez.=$item['v'];
-            else
-            {
-                $t = $this->compile_arg($item['v']);
-                if($t === false) return false;
-                $rez.=$t;
-            }
-        }
-        if(!$this->check_exp_syntax($rez))
-        {
-            $this->error('Arguments are ok, but cannot compile the expression "'.$str.'"',
-                'compile_exp');
-            return false;
-        }
-        return $rez;
-    }
-
-    function compile_arg($str)
-    {
-        $rez = $this->arg_compiler->compile($str);
-        if($rez === false)
-        {
-            $this->error($this->arg_compiler->error, 'arg_compiler');
-        }
-        return $rez;
+        $this->exp_compiler = new GekkonExpCompiler($this);
     }
 
     function compile($tpl_name)
@@ -113,7 +73,7 @@ class GekkonCompiler {
                 'parent_name' => 'none'
             );
         }
-        $data = $this->parse_tag_content($_str, $parent);
+        $data = $this->parse_str($_str, $parent);
         $this->flush_errors();
         if($data === false) return false;
         return $this->compile_parsed_str($data);
@@ -137,7 +97,7 @@ class GekkonCompiler {
         return $rez;
     }
 
-    function parse_tag_content($_str, $_parent)
+    function parse_str($_str, $_parent)
     {
         $rez = array();
         $line = 0;
@@ -287,32 +247,6 @@ class GekkonCompiler {
         }
     }
 
-    function parse_args($_str)
-    {
-        $_str = explode('=', $_str);
-        $_rez = array();
-        $cnt = count($_str) - 1;
-        $name = trim($_str[0]);
-        $i = 1;
-        while($i < $cnt)
-        {
-            $t = strrpos($_str[$i], ' ');
-            $val = substr($_str[$i], 0, $t);
-            if(($_rez[$name] = $this->compile_exp($val)) === false)
-                    return false;
-
-            $name = trim(substr($_str[$i], $t));
-            $i++;
-        }
-        if(isset($_str[$cnt]))
-        {
-            $val = $_str[$cnt];
-            if(($_rez[$name] = $this->compile_exp($val)) === false)
-                    return false;
-        }
-        return $_rez;
-    }
-
     function error_in_tag($msg, $tag)
     {
         return $this->error($msg, 'Tag: '.$tag['name'], $tag['line']);
@@ -349,22 +283,6 @@ class GekkonCompiler {
         return false;
     }
 
-    function check_syntax($code)
-    {
-        ob_start();
-
-        $code = "if(0){{$code}\n}";
-        $result = eval($code);
-        ob_get_clean();
-
-        return false !== $result;
-    }
-
-    function check_exp_syntax($code)
-    {
-        return GekkonCompiler::check_syntax('$x='.$code.';');
-    }
-
     function getUID()//it is a relatively unique id, for uid inside of one template
     {
         return $this->uid++;
@@ -393,13 +311,130 @@ class GekkonCompiler {
 
 // End Of Class ----------------------------------------------------------------
 
-
-
-class gekkon_arg_compiler {
+class GekkonExpCompiler {
 
     function __construct(&$compiler)
     {
         $this->compiler = $compiler;
+        $this->arg_compiler = new gekkon_arg_compiler($this);
+        $this->arg_lexer = new GekkonLexer();
+    }
+
+    function compile_construction_expressions($data)
+    {
+        $cnt = count($data);
+        for($i = 0; $i < $cnt; $i++)
+        {
+            if($data[$i]['t'] == '<exp>')
+            {
+                $t = $this->compile_parsed_exp($data[$i]['v']);
+                if($t === false) return false;
+                $data[$i]['v'] = $t;
+            }
+        }
+        return $data;
+    }
+
+    function compile_exp($str)
+    {
+        $data = $this->arg_lexer->parse_expression($str);
+        if($data === false)
+        {
+            $this->compiler->error($this->arg_lexer->error, 'arg_lexer');
+            return false;
+        }
+        if(($rez = $this->compile_parsed_exp($data)) === false) return false;
+        return $rez;
+    }
+
+    function compile_parsed_exp($data)
+    {
+        $rez = '';
+        $orig = '';
+        foreach($data as $item)
+        {
+            if($item['t'] == 'l') $rez.=$item['v'];
+            else
+            {
+                $t = $this->compile_arg($item['v']);
+                if($t === false) return false;
+                $rez.=$t;
+            }
+            $orig.=$item['v'];
+        }
+        if(!$this->check_exp_syntax($rez))
+                return $this->compiler->error('Wrong expression syntax "'.$orig.'"',
+                    'compile_exp');
+
+        return $rez;
+    }
+
+    function compile_arg($str)
+    {
+        $rez = $this->arg_compiler->compile($str);
+        if($rez === false)
+        {
+            $this->compiler->error($this->arg_compiler->error, 'arg_compiler');
+        }
+        return $rez;
+    }
+
+    function parse_args($_str)
+    {
+        $_str = explode('=', $_str);
+        $_rez = array();
+        $cnt = count($_str) - 1;
+        $name = trim($_str[0]);
+        $i = 1;
+        while($i < $cnt)
+        {
+            $t = strrpos($_str[$i], ' ');
+            $val = substr($_str[$i], 0, $t);
+            if(($_rez[$name] = $this->compile_exp($val)) === false)
+                    return false;
+
+            $name = trim(substr($_str[$i], $t));
+            $i++;
+        }
+        if(isset($_str[$cnt]))
+        {
+            $val = $_str[$cnt];
+            if(($_rez[$name] = $this->compile_exp($val)) === false)
+                    return false;
+        }
+        return $_rez;
+    }
+
+    function check_syntax($code)
+    {
+        ob_start();
+
+        $code = "if(0){{$code}\n}";
+        $result = eval($code);
+        ob_get_clean();
+
+        return false !== $result;
+    }
+
+    function check_exp_syntax($code)
+    {
+        return GekkonExpCompiler::check_syntax('$x='.$code.';');
+    }
+
+    function parse_expression($str)
+    {
+        return $this->arg_lexer->parse_expression($str);
+    }
+
+}
+
+// End Of Class ----------------------------------------------------------------
+
+class gekkon_arg_compiler {
+
+    function __construct(&$exp_compiler)
+    {
+        $this->exp_compiler = $exp_compiler;
 
         $this->parser = new GekkonLLParser(array(
             'S' => 'VX | IX | sX | (e)X | D ',
@@ -423,7 +458,7 @@ class gekkon_arg_compiler {
         if($_str == '') return '';
         if($_str == '@') return '@';
 
-        $_data = $this->compiler->arg_lexer->parse_variable($_str);
+        $_data = $this->exp_compiler->arg_lexer->parse_variable($_str);
 
         if(($_data = $this->parser->parse($_data)) === false)
         {
@@ -458,7 +493,7 @@ class gekkon_arg_compiler {
     {
         $save_rez = $this->rez;
         $this->rez = '';
-        $rez = $this->compiler->compile_exp(current($_data));
+        $rez = $this->exp_compiler->compile_exp(current($_data));
         if($scope === true) $rez = '('.$rez.')';
         $this->rez = $save_rez.$rez;
     }

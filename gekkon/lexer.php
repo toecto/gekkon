@@ -9,9 +9,8 @@ class GekkonLexer {
     var $error;
     var $step;
 
-    function parse_construction($str, $keys)
+    function parse_construction($data, $keys, $strict = true)
     {
-        $data = $this->parse_expression($str);
         $this->init('');
         $current_keyword = 0;
         $rez = array();
@@ -22,7 +21,7 @@ class GekkonLexer {
             {
                 if(count($buffer) > 0)
                 {
-                    $this->save($buffer, 'e');
+                    $this->save($buffer, '<exp>');
                     $current_keyword++;
                     $buffer = array();
                 }
@@ -50,10 +49,10 @@ class GekkonLexer {
 
         if(count($buffer) > 0)
         {
-            $this->save($buffer, 'e');
+            $this->save($buffer, '<exp>');
             $current_keyword++;
         }
-        if($current_keyword < count($keys) - 1)
+        if($current_keyword < count($keys) - 1 && $strict === true)
         {
             $this->error.= "Keyword '".$keys[$current_keyword]."' is expected\n";
             return false;

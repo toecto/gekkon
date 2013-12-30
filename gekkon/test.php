@@ -125,7 +125,7 @@ $lx = new GekkonLexer();
 for($j = 0; $j < $cnt; $j++)
 {
     echo $vars[$j], "<br>\n";
-    if(($x = $g_compiler->compile_exp($vars[$j])) === false)
+    if(($x = $g_compiler->exp_compiler->compile_exp($vars[$j])) === false)
             $g_compiler->flush_errors();
 
     echo $x, "<br><br>\n\n";
@@ -133,7 +133,7 @@ for($j = 0; $j < $cnt; $j++)
     //echo $lx->error;
 }
 /**/
-print_r($lx->parse_construction('from=$asd.sd item=$asd meta=$loop',
+print_r($lx->parse_construction($lx->parse_expression('from=$asd.sd item=$asd meta=$loop'),
         array('from', '=', '<exp>', 'item', '=', '<exp>', 'meta', '=', '<exp>')));
 echo $lx->error;
 

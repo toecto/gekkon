@@ -40,3 +40,8 @@ rr{$a.pow(2)}<br>
 
 {no_parse}Wrong placed {empty}{/no_parse}
 {empty}
+
+<div>Another foreach syntax</div>
+{foreach $arr as $key=>$value;@data}
+    {$key}=>{$value} {@data.print_r()}<br>
+{/foreach}
