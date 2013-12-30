@@ -7,6 +7,7 @@ function gekkon_tag_foreach($compiler, $_tag)
             return r_error('gekkon: tag foreach: Cannot compile args');
 
     $meta_init = '';
+    $meta_body = '';
     if(isset($args['meta']))
     {
         $meta_name = $args['meta'];
