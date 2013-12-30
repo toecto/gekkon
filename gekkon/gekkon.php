@@ -49,6 +49,14 @@ class Gekkon {
         $t($this);
     }
 
+    function get_display($tpl_name){
+        ob_start();
+        $this->display($tpl_name);
+        $out = ob_get_contents();
+        ob_end_clean();
+        return $out;
+    }
+
     function fn_name($tpl_name)
     {
         return 'gekkon_'.strtr($this->tpl_path.$tpl_name, '/!.', '___');
