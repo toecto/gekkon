@@ -3,7 +3,7 @@
 //version 1.0
 
 
-class gekkon_compiler {
+class GekkonCompiler {
 
     function __construct(&$gekkon)
     {
@@ -14,7 +14,7 @@ class gekkon_compiler {
         include_once $gekkon->gekkon_path.'lexer.php';
 
         $this->arg_compiler = new gekkon_arg_compiler($this);
-        $this->arg_lexer = new gekkon_lexer();
+        $this->arg_lexer = new GekkonLexer();
     }
 
     function compile_exp($str)
@@ -36,7 +36,12 @@ class gekkon_compiler {
                 $rez.=$t;
             }
         }
-
+        if(!$this->check_exp_syntax($rez))
+        {
+            $this->error('Arguments are ok, but cannot compile the expression "'.$str.'"',
+                'gekkon_compiler');
+            return false;
+        }
         return $rez;
     }
 
@@ -323,6 +328,22 @@ class gekkon_compiler {
         return false;
     }
 
+    function check_syntax($code)
+    {
+        ob_start();
+
+        $code = "if(0){{$code}\n}";
+        $result = eval($code);
+        ob_get_clean();
+
+        return false !== $result;
+    }
+
+    function check_exp_syntax($code)
+    {
+        return GekkonCompiler::check_syntax('$x='.$code.';');
+    }
+
 }
 
 // End Of Class ----------------------------------------------------------------
@@ -335,7 +356,7 @@ class gekkon_arg_compiler {
     {
         $this->compiler = $compiler;
 
-        $this->parser = new gekkon_ll_parser(array(
+        $this->parser = new GekkonLLParser(array(
             'S' => 'VX | IX | sX | (e)X | D ',
             'D' => 'dL',
             'L' => '| .NX',

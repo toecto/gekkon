@@ -1,7 +1,7 @@
 <?php
 
 //version 2.0
-class gekkon {
+class Gekkon {
 
     var $bin_path;
     var $tpl_path;
@@ -91,7 +91,7 @@ class gekkon {
                 {
                     if(is_dir($path.$file))
                     {
-                        gekkon::clear_dir($path.$file.'/');
+                        Gekkon::clear_dir($path.$file.'/');
                         rmdir($path.$file);
                     }
                     else unlink($path.$file);
@@ -105,7 +105,7 @@ class gekkon {
         if(!$this->compiler)
         {
             include_once $this->gekkon_path.'compiler.php';
-            $this->compiler = new gekkon_compiler($this);
+            $this->compiler = new GekkonCompiler($this);
         }
         return $this->compiler->compile($tpl_name);
     }

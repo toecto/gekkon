@@ -6,7 +6,7 @@ include_once "gekkon/ll_parser.php";
 
 
 
-$gekkon = new gekkon(dirname(__file__).'/', dirname(__file__).'/tpl_bin/',
+$gekkon = new Gekkon(dirname(__file__).'/', dirname(__file__).'/tpl_bin/',
         'tpl/');
 $gekkon->display("test.tpl");
 

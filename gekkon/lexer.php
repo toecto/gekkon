@@ -1,6 +1,6 @@
 <?php
 
-class gekkon_lexer {
+class GekkonLexer {
 
     var $str;
     var $length;

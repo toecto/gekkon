@@ -7,7 +7,7 @@ error_reporting(0);
 class Test extends TestCase {
     
     function get_gekkon() {
-        return new gekkon(dirname(__file__), dirname(__file__).'/tpl/tpl_bin/', '/tpl/');
+        return new Gekkon(dirname(__file__), dirname(__file__).'/tpl/tpl_bin/', '/tpl/');
     }
 
     function get_display(&$gekkon, $tpl_name){

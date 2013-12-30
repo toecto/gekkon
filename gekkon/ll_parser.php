@@ -1,7 +1,7 @@
 <?php
 
 //version 1.0
-class gekkon_ll_parser {
+class GekkonLLParser {
 
     function __construct($_raw_grammar)
     {
@@ -177,7 +177,7 @@ class gekkon_ll_parser {
         }
 
         $_stack = array();
-        $_tree = new gekkon_tree();
+        $_tree = new GekkonTree();
 
         array_push($_stack, array('s' => '$', 'k' => 0));
         array_push($_stack,
@@ -283,7 +283,7 @@ class gekkon_ll_parser {
 
 // end of class -----------------------------------------------------
 
-class gekkon_tree {
+class GekkonTree {
 
     function __construct()
     {

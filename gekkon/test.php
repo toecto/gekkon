@@ -7,11 +7,14 @@ include_once 'lexer.php';
 
 define('R_DEBUG', 1);
 ini_set("display_errors", 'on');
+
 // preg_match_all('/([A-Z]+)|([^A-Z\s])/u', 'aaBDsNsDFDF', $m);
 // print_r($m);
 
 
 $vars = array(
+    '1+1',
+    '1++1',
     '1.t()',
     '$a.x(1+1) +($b.x(1+")"+ 1)+g)*(1).tt()',
     '$a.x(1+1) +(3+4)*(1+2)',
@@ -106,9 +109,9 @@ $vars = array(
 
 
 
-$gekkon = new gekkon('', '', '');
+$gekkon = new Gekkon('', '', '');
 
-$g_compiler = new gekkon_compiler($gekkon);
+$g_compiler = new GekkonCompiler($gekkon);
 
 
 
@@ -116,11 +119,8 @@ $g_compiler = new gekkon_compiler($gekkon);
 
 
 $cnt = count($vars);
-$lx = new gekkon_lexer();
+$lx = new GekkonLexer();
 
-print_r($lx->parse_construction('from=$asd.sd item=$asd meta=$loop',
-        array('from', '=', '<exp>', 'item', '=', '<exp>', 'meta', '=', '<exp>')));
-echo $lx->error;
 //die('ok');
 for($j = 0; $j < $cnt; $j++)
 {
@@ -133,4 +133,8 @@ for($j = 0; $j < $cnt; $j++)
     //echo $lx->error;
 }
 /**/
+print_r($lx->parse_construction('from=$asd.sd item=$asd meta=$loop',
+        array('from', '=', '<exp>', 'item', '=', '<exp>', 'meta', '=', '<exp>')));
+echo $lx->error;
+
 die('ok');
