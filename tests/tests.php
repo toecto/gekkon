@@ -10,39 +10,31 @@ class Test extends TestCase {
         return new Gekkon(dirname(__file__), dirname(__file__).'/tpl/tpl_bin/', '/tpl/');
     }
 
-    function get_display(&$gekkon, $tpl_name){
-        ob_start();
-        $gekkon->display($tpl_name);
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
-    }
-
     function test_var() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', '1');
-        $output = $this->get_display($gekkon, 'test_var.tpl');
+        $output = $gekkon->get_display('test_var.tpl');
         $this->assertEquals("1", trim($output));
     }
 
     function test_array() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', array(1, 2));
-        $output = $this->get_display($gekkon, 'test_array.tpl');
+        $output = $gekkon->get_display('test_array.tpl');
         $this->assertEquals("1", trim($output));
     }
 
     function test_array_sub() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', array(array(1, 2), array(1, 2)));
-        $output = $this->get_display($gekkon, "test_array_sub.tpl");
+        $output = $gekkon->get_display("test_array_sub.tpl");
         $this->assertEquals("2", trim($output));
     }
 
     function test_hash() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', array('key'=>"true"));
-        $output = $this->get_display($gekkon, "test_hash.tpl");
+        $output = $gekkon->get_display("test_hash.tpl");
         $this->assertEquals("true", trim($output));
     }
 
@@ -50,14 +42,14 @@ class Test extends TestCase {
         $gekkon = $this->get_gekkon();
         $gekkon->register('key', 'key');
         $gekkon->register('var', array('key'=>"true"));
-        $output = $this->get_display($gekkon, "test_hash_var.tpl");
+        $output = $gekkon->get_display("test_hash_var.tpl");
         $this->assertEquals("true", trim($output));
     }
 
     function test_hash_sub() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', array('key'=> array("subkey"=> "true")));
-        $output = $this->get_display($gekkon, "test_hash_sub.tpl");
+        $output = $gekkon->get_display("test_hash_sub.tpl");
         $this->assertEquals("true", trim($output));
     }
 
@@ -66,21 +58,21 @@ class Test extends TestCase {
         $gekkon->register('key', 'key');
         $gekkon->register('subkey', 'subkey');
         $gekkon->register('var', array('key'=> array("subkey"=> "true")));
-        $output = $this->get_display($gekkon, "test_hash_var_sub.tpl");
+        $output = $gekkon->get_display("test_hash_var_sub.tpl");
         $this->assertEquals("true", trim($output));
     }
 
     function test_function() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', 'test');
-        $output = $this->get_display($gekkon, "test_function.tpl");
+        $output = $gekkon->get_display("test_function.tpl");
         $this->assertEquals("4", trim($output));
     }
 
     function test_function_in() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', 'test');
-        $output = $this->get_display($gekkon, "test_function_in.tpl");
+        $output = $gekkon->get_display("test_function_in.tpl");
         $this->assertEquals("2", trim($output));
     }
 
@@ -95,7 +87,7 @@ class Test extends TestCase {
         $obj = new Mock();
         $gekkon = $this->get_gekkon();
         $gekkon->register('obj', $obj);
-        $output = $this->get_display($gekkon, "test_method_call.tpl");
+        $output = $gekkon->get_display("test_method_call.tpl");
         $this->assertEquals("true", trim($output));
     }
 
@@ -104,7 +96,7 @@ class Test extends TestCase {
         $obj = new Mock();
         $gekkon = $this->get_gekkon();
         $gekkon->register('obj', $obj);
-        $output = $this->get_display($gekkon, "test_property_call.tpl");
+        $output = $gekkon->get_display("test_property_call.tpl");
         $this->assertEquals("default", trim($output));
     }
 
@@ -112,28 +104,49 @@ class Test extends TestCase {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var1', 2);
         $gekkon->register('var2', 2);
-        $output = $this->get_display($gekkon, "test_expression.tpl");
+        $output = $gekkon->get_display("test_expression.tpl");
         $this->assertEquals("8", trim($output));
     }
 
     function test_tag_set() {
         $gekkon = $this->get_gekkon();
-        $output = $this->get_display($gekkon, "test_tag_set.tpl");
+        $output = $gekkon->get_display("test_tag_set.tpl");
         $this->assertEquals("1", trim($output));
     }
 
     function test_tag_if() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', true);
-        $output = $this->get_display($gekkon, "test_tag_if.tpl");
+        $output = $gekkon->get_display("test_tag_if.tpl");
         $this->assertEquals("1", trim($output));
     }
 
     function test_tag_if_else() {
         $gekkon = $this->get_gekkon();
         $gekkon->register('var', false);
-        $output = $this->get_display($gekkon, "test_tag_if.tpl");
+        $output = $gekkon->get_display("test_tag_if.tpl");
         $this->assertEquals("0", trim($output));
+    }
+
+    function test_tag_foreach() {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('items', array(1, 2, 3));
+        $output = $gekkon->get_display("test_tag_foreach.tpl");
+        $this->assertEquals("123", trim($output));
+    }
+
+    function test_tag_foreach_meta() {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('items', array(1, 2, 3));
+        $output = $gekkon->get_display("test_tag_foreach_meta.tpl");
+        $this->assertEquals("_|1-0-1-3-2||2-1-2-2-1||3-2-3-1-0|_", trim($output));
+    }
+
+    function test_tag_foreach_key() {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('items', array("one"=>1, "two"=>2, "three"=>3));
+        $output = $gekkon->get_display("test_tag_foreach_key.tpl");
+        $this->assertEquals("one=1|two=2|three=3", trim($output));
     }
 }
 

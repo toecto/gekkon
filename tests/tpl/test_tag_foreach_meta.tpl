@@ -1,0 +1,1 @@
+{foreach from=$items item=$item meta=$loop}{if $loop.first}_{/if}|{$item}-{$loop.counter0}-{$loop.counter}-{$loop.revcounter}-{$loop.revcounter0}|{if $loop.last}_{/if}{/foreach}
