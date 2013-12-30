@@ -1,5 +1,6 @@
 tpl_bin/*
 !tpl_bin/readme.txt
+tests/tpl/tpl_bin/*
 nbproject/
 *.bak
 *.log
