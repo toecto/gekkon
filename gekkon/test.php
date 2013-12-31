@@ -8,8 +8,6 @@ include_once 'lexer.php';
 define('R_DEBUG', 1);
 ini_set("display_errors", 'on');
 
-// preg_match_all('/([A-Z]+)|([^A-Z\s])/u', 'aaBDsNsDFDF', $m);
-// print_r($m);
 
 
 $vars = array(
@@ -138,3 +136,19 @@ print_r($lx->parse_construction($lx->parse_expression('from=$asd.sd item=$asd me
 echo $lx->error;
 
 die('ok');
+
+
+$lx = new GekkonLexer();
+
+$pr = new GekkonLLParser(array(
+    '<expr>' => '(<expr>)<ext>| <arg><ext>',
+    '<ext>' => '<lev1><lev2>',
+    '<lev1>' => '|+<expr>|-<expr>',
+    '<lev2>' => '|*<expr>|/<expr>',
+    '<arg>' => 'd'
+    ));
+print_r($pr);
+$rez = $pr->parse("d*d");
+
+if($rez !== false) print_r($rez->real());
+else echo $pr->error;

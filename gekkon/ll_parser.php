@@ -163,7 +163,11 @@ class GekkonLLParser {
                 if(isset($rule['right'][$t + 1]))
                 {
                     $s = $rule['right'][$t + 1];
-                    if(!$this->isTerminal($s))
+                    if($this->isTerminal($s))
+                    {
+                        $this->_follow[$left][$s] = $r_num;
+                    }
+                    else
                     {
                         foreach($this->_firsts[$s] as $k => $tt)
                         {
@@ -176,10 +180,6 @@ class GekkonLLParser {
                                 $this->add_left_follows($s, $left);
                             }
                         }
-                    }
-                    else
-                    {
-                        $this->_follow[$left][$s] = $r_num;
                     }
                 }
                 else
@@ -197,7 +197,7 @@ class GekkonLLParser {
     function add_left_follows($from, $to)
     {
         if($from == $to) return;
-        if(!isset($this->_follow[$from])) return;
+        if(!isset($this->_follow[$from])) $this->find_follow_term($from);
         foreach($this->_follow[$from] as $k => $tt)
         {
             if($k != '<empty>')
@@ -244,15 +244,16 @@ class GekkonLLParser {
         for($now = 0; $now < $cnt;
         )
         {
-//$this->print_stack($_stack);
+            //$this->print_stack($_stack);
             if($limit++ > 1000)
             {
                 $this->error.= "gekkon_ll_parser: parsing limit reached;\n";
                 return false;
             }
-            r_log($_stack, 'gekkon_parser');
+
             $t = array_pop($_stack);
             $st = $t['s'];
+
             $_tree->go($t['k']);
             if($this_str)
             {
@@ -264,7 +265,7 @@ class GekkonLLParser {
                 $char_type = $_str[$now]['t'];
             }
 
-            r_log($st.'=='.$char_type, 'gekkon_parser');
+            //echo $st.'=='.$char_type."\n";
             if($st == $char_type)
             {
                 if($st == '$' && count($_stack) <= 1) break;
@@ -275,8 +276,10 @@ class GekkonLLParser {
             {
                 if(!$this->isTerminal($st))
                 {
+
                     if(''.$this->_fsm_map[$st][$char_type] != 'none')
                     {
+
                         $tt = count($x = $this->_grammar[$this->_fsm_map[$st][$char_type]]['right']);
 //$save_st = $st;
 

@@ -49,7 +49,8 @@ class Gekkon {
         $t($this);
     }
 
-    function get_display($tpl_name){
+    function get_display($tpl_name)
+    {
         ob_start();
         $this->display($tpl_name);
         $out = ob_get_contents();
