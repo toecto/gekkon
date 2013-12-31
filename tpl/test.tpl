@@ -3,7 +3,7 @@ qq{set $a = 1}<br>
 ww{$a}<br>
 ee{$a+=2}
 rr{$a.pow(2)}<br>
-
+{@ "Str".strtoupper()}
 {set $arr=array('aaa','bbb','ccc')}
 {set $arr_empty=array()}
 <table border>
