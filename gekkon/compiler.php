@@ -437,17 +437,17 @@ class gekkon_arg_compiler {
         $this->exp_compiler = $exp_compiler;
 
         $this->parser = new GekkonLLParser(array(
-            'S' => 'VX | IX | sX | (e)X | D ',
-            'D' => 'dL',
-            'L' => '| .NX',
-            'I' => 'wF',
-            'F' => '| (E)X | ::ZX',
-            'E' => '| eE | ,eE',
-            'V' => '$w | @w',
-            'X' => '| .NX | MX',
-            'N' => ' V | I | s | (e) | d',
-            'M' => '->I',
-            'Z' => '$w | w(E)',
+            '<argument>' => '<variable><extention> | <word><extention> | s<extention> | (e)<extention> | <digit> ',
+            '<digit>' => 'd<long>',
+            '<long>' => '| .<value><extention>',
+            '<word>' => 'w<function>',
+            '<function>' => '| (<parameters>)<extention> | ::<static><extention>',
+            '<parameters>' => '| e<parameters> | ,e<parameters>',
+            '<variable>' => '$w | @w',
+            '<extention>' => '| .<value><extention> | <objectmember><extention>',
+            '<value>' => ' <variable> | <word> | s | (e) | d',
+            '<objectmember>' => '-><word>',
+            '<static>' => '$w | w(<parameters>)',
         ));
     }
 
@@ -466,27 +466,29 @@ class gekkon_arg_compiler {
             return false;
         }
         $this->rez = '';
-        $this->n_S($_data->real());
+        $this->n_argument($_data->real());
         return $this->rez;
     }
 
-    function n_S($_data)
+    function n_argument($_data)
     {
-        if(isset($_data['V'])) $this->n_V($_data['V']);
+        if(isset($_data['<variable>'])) $this->n_variable($_data['<variable>']);
 
-        else if(isset($_data['I'])) $this->n_I($_data['I']);
+        else if(isset($_data['<word>'])) $this->n_word($_data['<word>']);
 
         else if(isset($_data['s'])) $this->t_s($_data['s']);
 
-        else if(isset($_data['S'])) $this->n_S($_data['S']);
+        else if(isset($_data['<argument>']))
+                $this->n_argument($_data['<argument>']);
 
-        else if(isset($_data['D'])) $this->n_D($_data['D']);
+        else if(isset($_data['<digit>'])) $this->n_digit($_data['<digit>']);
 
         if(isset($_data['d'])) $this->rez.=current($_data['d']);
 
         if(isset($_data['e'])) $this->t_e($_data['e'], true);
 
-        if(isset($_data['X']) && is_array($_data['X'])) $this->n_X($_data['X']);
+        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
+                $this->n_extention($_data['<extention>']);
     }
 
     function t_e($_data, $scope = false)
@@ -503,31 +505,33 @@ class gekkon_arg_compiler {
         $this->rez .= current($_data);
     }
 
-    function n_D($_data)//done
+    function n_digit($_data)//done
     {
         if(isset($_data['d'])) $this->rez .= current($_data['d']);
-        if(isset($_data['L']) && is_array($_data['L'])) $this->n_L($_data['L']);
+        if(isset($_data['<long>']) && is_array($_data['<long>']))
+                $this->n_long($_data['<long>']);
     }
 
-    function n_L($_data)//done
+    function n_long($_data)//done
     {
-        if(isset($_data['N']['d']))
+        if(isset($_data['<value>']['d']))
         {
-            $this->rez .= '.'.current($_data['N']['d']);
+            $this->rez .= '.'.current($_data['<value>']['d']);
         }
-        else if(isset($_data['N']['I']['F']) && is_array($_data['N']['I']['F']) && !isset($_data['N']['I']['F']['Z']))
+        else if(isset($_data['<value>']['<word>']['<function>']) && is_array($_data['<value>']['<word>']['<function>']) && !isset($_data['<value>']['<word>']['<function>']['<static>']))
         {
-            $this->n_F($_data['N']['I']);
+            $this->n_function($_data['<value>']['<word>']);
         }
 
-        if(isset($_data['X']) && is_array($_data['X'])) $this->n_X($_data['X']);
+        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
+                $this->n_extention($_data['<extention>']);
     }
 
-    function n_I($_data)
+    function n_word($_data)
     {
-        if(isset($_data['F']) && is_array($_data['F']))
+        if(isset($_data['<function>']) && is_array($_data['<function>']))
         {
-            $this->n_F($_data); //sent with function name
+            $this->n_function($_data); //sent with function name
         }
         else if(isset($_data['w']))
         {
@@ -537,7 +541,7 @@ class gekkon_arg_compiler {
         }
     }
 
-    function n_E($_data)
+    function n_parameters($_data)
     {
         if(isset($_data[','])) $this->rez .= ',';
 
@@ -545,21 +549,22 @@ class gekkon_arg_compiler {
         if(isset($_data['e'])) $this->t_e($_data['e']);
 
 
-        if(isset($_data['E']) && is_array($_data['E'])) $this->n_E($_data['E']);
+        if(isset($_data['<parameters>']) && is_array($_data['<parameters>']))
+                $this->n_parameters($_data['<parameters>']);
     }
 
-    function n_F($_data)
+    function n_function($_data)
     {
         $fname = current($_data['w']);
-        $_data = $_data['F'];
+        $_data = $_data['<function>'];
 
         if(isset($_data['(']))
         {
-            if(isset($_data['E']) && is_array($_data['E']))
+            if(isset($_data['<parameters>']) && is_array($_data['<parameters>']))
             {
                 $save_rez = $this->rez;
                 if($save_rez != '') $this->rez = ',';
-                $this->n_E($_data['E']);
+                $this->n_parameters($_data['<parameters>']);
                 $ins = $this->rez;
                 $this->rez = $fname.'('.$save_rez.$ins.')';
             }
@@ -568,16 +573,16 @@ class gekkon_arg_compiler {
         else if(isset($_data[':']))
         {
             $this->rez.=$fname.'::';
-            $this->n_Z($_data['Z']);
+            $this->n_static($_data['<static>']);
         }
 
-        if(isset($_data['X']) && is_array($_data['X']))
+        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
         {
-            $this->n_X($_data['X']);
+            $this->n_extention($_data['<extention>']);
         }
     }
 
-    function n_V($_data)//done
+    function n_variable($_data)//done
     {
         if(isset($_data['$']))
                 $this->rez .= "\$gekkon->data['".current($_data['w'])."']";
@@ -587,59 +592,62 @@ class gekkon_arg_compiler {
         }
     }
 
-    function n_X($_data)//done
+    function n_extention($_data)//done
     {
-        if(isset($_data['N']['I']['F']) && is_array($_data['N']['I']['F']) && !isset($_data['N']['I']['F']['Z']))
+        if(isset($_data['<value>']['<word>']['<function>']) && is_array($_data['<value>']['<word>']['<function>']) && !isset($_data['<value>']['<word>']['<function>']['<static>']))
         {
-            $this->n_F($_data['N']['I']);
+            $this->n_function($_data['<value>']['<word>']);
         }
         else if(isset($_data['.']))
         {
             $save_rez = $this->rez;
             $this->rez = '';
-            $this->n_S($_data['N']);
+            $this->n_argument($_data['<value>']);
             $ins = $this->rez;
             $this->rez = $save_rez.'['.$ins.']';
         }
 
-        if(isset($_data['M']) && is_array($_data['M'])) $this->n_M($_data['M']);
+        if(isset($_data['<objectmember>']) && is_array($_data['<objectmember>']))
+                $this->n_objectmember($_data['<objectmember>']);
 
-        if(isset($_data['X']) && is_array($_data['X'])) $this->n_X($_data['X']);
+        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
+                $this->n_extention($_data['<extention>']);
     }
 
-    function n_M($_data)//done
+    function n_objectmember($_data)//done
     {
         $this->rez.='->';
-        if(isset($_data['I'])) $this->n_I_obj($_data['I']);
+        if(isset($_data['<word>'])) $this->n_object_word($_data['<word>']);
     }
 
-    function n_I_obj($_data)
+    function n_object_word($_data)
     {
-        if(isset($_data['F']) && is_array($_data['F']))
+        if(isset($_data['<function>']) && is_array($_data['<function>']))
         {
-            $this->n_F_obj($_data); //sent with function name
+            $this->n_object_function($_data); //sent with function name
         }
         else if(isset($_data['w'])) $this->rez .= current($_data['w']);
     }
 
-    function n_F_obj($_data)
+    function n_object_function($_data)
     {
         $mname = current($_data['w']);
-        $_data = $_data['F'];
-        if(isset($_data['E']) && is_array($_data['E']))
+        $_data = $_data['<function>'];
+        if(isset($_data['<parameters>']) && is_array($_data['<parameters>']))
         {
             $save_rez = $this->rez;
             $this->rez = '';
-            $this->n_E($_data['E']);
+            $this->n_parameters($_data['<parameters>']);
             $ins = $this->rez;
             $this->rez = $save_rez.$mname.'('.$ins.')';
         }
         else $this->rez .= $mname.'()';
 
-        if(isset($_data['X']) && is_array($_data['X'])) $this->n_X($_data['X']);
+        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
+                $this->n_extention($_data['<extention>']);
     }
 
-    function n_Z($_data)
+    function n_static($_data)
     {
         if(isset($_data['$']))
         {
@@ -648,12 +656,12 @@ class gekkon_arg_compiler {
         else
         {
             $nname = current($_data['w']);
-            if(isset($_data['E']) && is_array($_data['E']))
+            if(isset($_data['<parameters>']) && is_array($_data['<parameters>']))
             {
                 $this->rez .= $nname;
                 $save_rez = $this->rez;
                 $this->rez = '';
-                $this->n_E($_data['E']);
+                $this->n_parameters($_data['<parameters>']);
                 $ins = $this->rez;
                 $this->rez = $save_rez.'('.$ins.')';
             }
