@@ -153,11 +153,27 @@ class Test extends TestCase {
         $this->assertEquals("123", trim($output));
     }
 
+    function test_tag_foreach_new()
+    {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('items', array(1, 2, 3));
+        $output = $gekkon->get_display("test_tag_foreach_new.tpl");
+        $this->assertEquals("123", trim($output));
+    }
+
     function test_tag_foreach_empty()
     {
         $gekkon = $this->get_gekkon();
         $gekkon->register('items', array());
         $output = $gekkon->get_display("test_tag_foreach.tpl");
+        $this->assertEquals("empty", trim($output));
+    }
+
+    function test_tag_foreach_empty_new()
+    {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('items', array());
+        $output = $gekkon->get_display("test_tag_foreach_new.tpl");
         $this->assertEquals("empty", trim($output));
     }
 
@@ -168,6 +184,7 @@ class Test extends TestCase {
         $output = $gekkon->get_display("test_tag_foreach_meta.tpl");
         $this->assertEquals("_|1-0-1-3-2||2-1-2-2-1||3-2-3-1-0|_", trim($output));
     }
+
 
     function test_tag_foreach_key()
     {
