@@ -59,7 +59,7 @@ class GekkonLLParser {
         $this->_grammar = array();
         foreach($_raw_grammar as $nt => $rules)
         {
-            $rules = explode('|', $rules);
+            $rules = explode('|', $rules); //todo: handle escape slash
             foreach($rules as $rule)
             {
                 $rule = trim($rule);
@@ -214,7 +214,6 @@ class GekkonLLParser {
 
     function parse($_str)
     {
-        r_log('Parce '.$_str, 'gekkon_parser');
         $this->error = '';
         if(is_string($_str))
         {
@@ -244,7 +243,6 @@ class GekkonLLParser {
         for($now = 0; $now < $cnt;
         )
         {
-            //$this->print_stack($_stack);
             if($limit++ > 1000)
             {
                 $this->error.= "gekkon_ll_parser: parsing limit reached;\n";
@@ -264,8 +262,8 @@ class GekkonLLParser {
                 $char_value = $_str[$now]['v'];
                 $char_type = $_str[$now]['t'];
             }
-
-            //echo $st.'=='.$char_type."\n";
+            //$this->print_stack($_stack);
+            //echo $st.'=='.$char_type."\n\n";
             if($st == $char_type)
             {
                 if($st == '$' && count($_stack) <= 1) break;
@@ -274,39 +272,39 @@ class GekkonLLParser {
             }
             else
             {
-                if(!$this->isTerminal($st))
+                if($this->isTerminal($st) || $this->_fsm_map[$st][$char_type] === 'none')
                 {
 
-                    if(''.$this->_fsm_map[$st][$char_type] != 'none')
+                    if($st != '<empty>')
                     {
-
-                        $tt = count($x = $this->_grammar[$this->_fsm_map[$st][$char_type]]['right']);
-//$save_st = $st;
-
-                        for($j = 0; $j < $tt; $j++)
+                        $tt = '';
+                        if($this_str) $tt = substr($_str, $now);
+                        else
                         {
-                            $t = $x[$tt - $j - 1];
-                            array_push($_stack,
-                                array('s' => $t, 'k' => $_tree->add($t)));
+                            foreach($_str as $t)
+                            {
+                                if($now-- < 1) $tt.=$t['v'];
+                            }
                         }
+
+                        $tt = substr($tt, 0, -1);
+                        if($tt == '')
+                                $this->error.='Unexpected end of sequence '."\n";
+                        else $this->error.= 'Unexpected sequence "'.$tt."\"\n";
+                        return false;
                     }
                 }
-                else if($st != '<empty>')
+                else
                 {
-                    $tt = '';
-                    if($this_str) $tt = substr($_str, $now);
-                    else
+                    $tt = count($x = $this->_grammar[$this->_fsm_map[$st][$char_type]]['right']);
+//$save_st = $st;
+
+                    for($j = 0; $j < $tt; $j++)
                     {
-                        foreach($_str as $t)
-                        {
-                            if($now-- < 1) $tt.=$t['v'];
-                        }
+                        $t = $x[$tt - $j - 1];
+                        array_push($_stack,
+                            array('s' => $t, 'k' => $_tree->add($t)));
                     }
-                    $tt = substr($tt, 0, -1);
-                    if($tt == '')
-                            $this->error.='Unexpected end of sequence '."\n";
-                    else $this->error.= 'Unexpected sequence "'.$tt."\"\n";
-                    return false;
                 }
             }
         }
@@ -333,7 +331,6 @@ class GekkonLLParser {
         {
             echo $v['s']."\n";
         }
-        echo "\n";
     }
 
 }
@@ -369,22 +366,29 @@ class GekkonTree {
         return $key;
     }
 
-    function real($l = 0)
+    function real($fk = 0)
     {
+
         $_rez = array();
         foreach($this->data as $k => $v)
         {
-            if($v['fk'] == $l && $v['data'] != '<empty>')
+            if($v['fk'] == $fk)
             {
-//$_rez[$v['data'].$k]['name']=$v['data'];
+
                 $t = $this->real($k);
-                if(count($t) > 0)
+                if($t != '<empty>')
                 {
                     $_rez[$v['data']] = $t;
                 }
-                else $_rez[$v['data']] = $v['data'];
             }
         }
+        $_rez = array_reverse($_rez, true);
+        if(count($_rez) == 1)
+        {
+            $t = current($_rez);
+            if(count($t) == 0) return key($_rez);
+        }
+
         return $_rez;
     }
 

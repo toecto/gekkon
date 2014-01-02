@@ -10,12 +10,14 @@ ini_set("display_errors", 'on');
 
 
 
+
 $vars = array(
     '1+1',
     '1++1',
     '1.t()',
     '$a.x(1+1) +($b.x(1+")"+ 1)+g)*(1).tt()',
     '$a.x(1+1) +(3+4)*(1+2)',
+    /* */
     '$str',
     '$str.index',
     '@aaa.bbb()',
@@ -87,8 +89,10 @@ $vars = array(
     '7.pow()',
     '7.7.pow()',
     '7.pow(2)',
+    '7.pow(2).pow(3)',
     '(7.7).pow(2)',
     'pow(22)',
+    'pow(22,66)',
     'pow(22).trr(11)',
     '$tt.5',
     '$tt.5.6',
@@ -99,7 +103,7 @@ $vars = array(
     '.',
     '',
     '$.asd',
-    /**/
+    /* */
 );
 
 
@@ -116,39 +120,58 @@ $g_compiler = new GekkonCompiler($gekkon);
 //print_r($g_compiler->arg_compiler->parser->parse(gekkon_lexer('7.pow()'))->real());
 
 
-$cnt = count($vars);
 $lx = new GekkonLexer();
+/*
 
-//die('ok');
+  //die('ok');
+  for($j = 0; $j < $cnt; $j++)
+  {
+  echo $vars[$j], "<br>\n";
+  if(($x = $g_compiler->exp_compiler->compile_exp($vars[$j])) === false)
+  $g_compiler->flush_errors();
+
+  echo $x, "<br><br>\n\n";
+  //print_r($lx->parse_variable($vars[$j]));
+  //echo $lx->error;
+  }
+
+  print_r($lx->parse_construction($lx->parse_expression('from=$asd.sd item=$asd meta=$loop'),
+  array('from', '=', '<exp>', 'item', '=', '<exp>', 'meta', '=', '<exp>')));
+  echo $lx->error;
+
+  /* */
+
+
+
+
+//$vars = array('reactor::$min->aaa(bbb)');
+
+$cnt = count($vars);
+/*
+  for($j = 0; $j < $cnt; $j++)
+  {
+  echo $vars[$j], "<br>\n";
+  $rez = $g_compiler->exp_compiler->arg_compiler->parser->parse($lx->parse_variable($vars[$j]));
+  if($rez !== false)
+  {
+  print_r($rez->real());
+  }
+  else
+  echo $pr->error, '<br><br>';  //print_r($lx->parse_variable($vars[$j]));
+
+  }
+
+  /* */
+//print_r($g_compiler);
 for($j = 0; $j < $cnt; $j++)
 {
     echo $vars[$j], "<br>\n";
     if(($x = $g_compiler->exp_compiler->compile_exp($vars[$j])) === false)
-            $g_compiler->flush_errors();
-
-    echo $x, "<br><br>\n\n";
+    {
+        $g_compiler->flush_errors();
+    }
+    else echo $x, "<br><br>\n\n";
     //print_r($lx->parse_variable($vars[$j]));
     //echo $lx->error;
 }
-/**/
-print_r($lx->parse_construction($lx->parse_expression('from=$asd.sd item=$asd meta=$loop'),
-        array('from', '=', '<exp>', 'item', '=', '<exp>', 'meta', '=', '<exp>')));
-echo $lx->error;
 
-die('ok');
-
-
-$lx = new GekkonLexer();
-
-$pr = new GekkonLLParser(array(
-    '<expr>' => '(<expr>)<ext>| <arg><ext>',
-    '<ext>' => '<lev1><lev2>',
-    '<lev1>' => '|+<expr>|-<expr>',
-    '<lev2>' => '|*<expr>|/<expr>',
-    '<arg>' => 'd'
-    ));
-print_r($pr);
-$rez = $pr->parse("d*d");
-
-if($rez !== false) print_r($rez->real());
-else echo $pr->error;

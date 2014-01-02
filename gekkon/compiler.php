@@ -337,9 +337,11 @@ class GekkonExpCompiler {
 
     function compile_exp($str)
     {
+
         $data = $this->arg_lexer->parse_expression($str);
         if($data === false)
         {
+
             $this->compiler->error($this->arg_lexer->error, 'arg_lexer');
             return false;
         }
@@ -365,16 +367,19 @@ class GekkonExpCompiler {
         if(!$this->check_exp_syntax($rez))
                 return $this->compiler->error('Wrong expression syntax "'.$orig.'"',
                     'compile_exp');
-
+        /* */
         return $rez;
     }
 
     function compile_arg($str)
     {
+
         $rez = $this->arg_compiler->compile($str);
         if($rez === false)
         {
+
             $this->compiler->error($this->arg_compiler->error, 'arg_compiler');
+            $this->arg_compiler->error = '';
         }
         return $rez;
     }
@@ -437,17 +442,23 @@ class gekkon_arg_compiler {
         $this->exp_compiler = $exp_compiler;
 
         $this->parser = new GekkonLLParser(array(
-            '<argument>' => '<variable><extention> | <word><extention> | s<extention> | (e)<extention> | <digit> ',
-            '<digit>' => 'd<long>',
-            '<long>' => '| .<value><extention>',
-            '<word>' => 'w<function>',
-            '<function>' => '| (<parameters>)<extention> | ::<static><extention>',
-            '<parameters>' => '| e<parameters> | ,e<parameters>',
-            '<variable>' => '$w | @w',
-            '<extention>' => '| .<value><extention> | <objectmember><extention>',
-            '<value>' => ' <variable> | <word> | s | (e) | d',
-            '<objectmember>' => '-><word>',
-            '<static>' => '$w | w(<parameters>)',
+            '<gekkon_var>' => '<object><object_ext> | <non_object><non_object_ext> | w<constant_ext>',
+            '<object>' => '$w | @w ',
+            '<non_object>' => 's | d<digit_ext> | (e)',
+            '<non_object_ext>' => '| .w<function><object_ext>',
+            '<digit_ext>' => '| .<double_or_function>',
+            '<double_or_function>' => 'd | w<function>',
+            '<object_ext>' => '| .<index_or_function_or_static_object><object_ext> | -><object_member>',
+            '<constant_ext>' => '<non_object_ext> | <function> | <static_object>',
+            '<index_or_function_or_static_object>' => '<object> | s | d | (e)  | w<is_function_or_static_object>',
+            '<is_function_or_static_object>' => '| <function> | <static_object>',
+            '<function>' => '(<parameters>)<object_ext>',
+            '<static_object>' => '::<static_object_member>',
+            '<static_object_member>' => '$w<object_ext> | w<function>',
+            '<object_member>' => 'w<is_method><object_ext>',
+            '<is_method>' => '|(<parameters>)',
+            '<parameters>' => '| e<parameters_ext>',
+            '<parameters_ext>' => ' | ,e<parameters_ext>',
         ));
     }
 
@@ -459,217 +470,247 @@ class gekkon_arg_compiler {
         if($_str == '@') return '@';
 
         $_data = $this->exp_compiler->arg_lexer->parse_variable($_str);
-
         if(($_data = $this->parser->parse($_data)) === false)
         {
+
             $this->error .= 'Cannot compile '.$_str.'; '.$this->parser->error;
             return false;
         }
+
         $this->rez = '';
-        $this->n_argument($_data->real());
+        $this->n_gekkon_var($_data->real());
+        if($this->error != '') return false;
         return $this->rez;
     }
 
-    function n_argument($_data)
+    function n_gekkon_var($_data)
     {
-        if(isset($_data['<variable>'])) $this->n_variable($_data['<variable>']);
+        if(isset($_data['<gekkon_var>']))
+                $this->n_gekkon_var($_data['<gekkon_var>']);
 
-        else if(isset($_data['<word>'])) $this->n_word($_data['<word>']);
+        if(isset($_data['<object>'])) $this->n_object($_data['<object>']);
 
-        else if(isset($_data['s'])) $this->t_s($_data['s']);
 
-        else if(isset($_data['<argument>']))
-                $this->n_argument($_data['<argument>']);
+        if(isset($_data['<object_ext>']))
+                $this->n_object_ext($_data['<object_ext>']);
 
-        else if(isset($_data['<digit>'])) $this->n_digit($_data['<digit>']);
+        if(isset($_data['<non_object>']))
+                $this->n_non_object($_data['<non_object>']);
 
-        if(isset($_data['d'])) $this->rez.=current($_data['d']);
+        if(isset($_data['<non_object_ext>']))
+                $this->n_non_object_ext($_data['<non_object_ext>']);
+
+        if(isset($_data['w']))
+        {
+            if(isset($_data['<constant_ext>']))
+                    $this->n_constant_ext($_data['<constant_ext>'], $_data['w']);
+        }
+    }
+
+    function n_object($_data)//done
+    {
+        if(isset($_data['$']))
+                $this->rez .= "\$gekkon->data['".$_data['w']."']";
+        if(isset($_data['@'])) $this->rez .= '$'.$_data['w'];
+    }
+
+    function n_non_object($_data)//done
+    {
+        if(isset($_data['s'])) $this->rez .=$_data['s'];
+
+        if(isset($_data['d'])) $this->rez .=$_data['d'];
+
+        if(isset($_data['<digit_ext>']))
+                $this->n_digit_ext($_data['<digit_ext>']);
 
         if(isset($_data['e'])) $this->t_e($_data['e'], true);
-
-        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
-                $this->n_extention($_data['<extention>']);
     }
 
-    function t_e($_data, $scope = false)
+    function n_non_object_ext($_data)//done
     {
-        $save_rez = $this->rez;
-        $this->rez = '';
-        $rez = $this->exp_compiler->compile_exp(current($_data));
-        if($scope === true) $rez = '('.$rez.')';
-        $this->rez = $save_rez.$rez;
+        if(isset($_data['<function>']))
+                $this->n_function($_data['<function>'], $_data['w']);
+
+        if(isset($_data['<object_ext>']))
+                $this->n_object_ext($_data['<object_ext>']);
     }
 
-    function t_s($_data)
+    function n_digit_ext($_data)//done
     {
-        $this->rez .= current($_data);
+        if(isset($_data['<double_or_function>']))
+                $this->n_double_or_function($_data['<double_or_function>']);
     }
 
-    function n_digit($_data)//done
+    function n_double_or_function($_data)//done
     {
-        if(isset($_data['d'])) $this->rez .= current($_data['d']);
-        if(isset($_data['<long>']) && is_array($_data['<long>']))
-                $this->n_long($_data['<long>']);
-    }
-
-    function n_long($_data)//done
-    {
-        if(isset($_data['<value>']['d']))
+        if(isset($_data['d'])) $this->rez .='.'.$_data['d'];
+        else
         {
-            $this->rez .= '.'.current($_data['<value>']['d']);
+            if(isset($_data['w']))
+                    $this->n_function($_data['<function>'], $_data['w']);
         }
-        else if(isset($_data['<value>']['<word>']['<function>']) && is_array($_data['<value>']['<word>']['<function>']) && !isset($_data['<value>']['<word>']['<function>']['<static>']))
-        {
-            $this->n_function($_data['<value>']['<word>']);
-        }
-
-        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
-                $this->n_extention($_data['<extention>']);
     }
 
-    function n_word($_data)
+    function n_object_ext($_data)//done
     {
-        if(isset($_data['<function>']) && is_array($_data['<function>']))
+        if(isset($_data['<object_member>']))
         {
-            $this->n_function($_data); //sent with function name
+            $this->rez .= '->';
+            $this->n_object_member($_data['<object_member>']);
         }
-        else if(isset($_data['w']))
+        else
         {
-            $t = current($_data['w']);
-            if(is_numeric($t)) $this->rez .= $t;
-            else $this->rez .= "'".$t."'";
+            if(isset($_data['<index_or_function_or_static_object>']))
+                    $this->n_index_or_function_or_static_object($_data['<index_or_function_or_static_object>']);
+
+            if(isset($_data['<object_ext>']))
+                    $this->n_object_ext($_data['<object_ext>']);
+        }
+    }
+
+    function n_constant_ext($_data, $w)//done
+    {
+        if(isset($_data['<static_object>']))
+                $this->n_static_object($_data['<static_object>'], $w);
+        else if(isset($_data['<function>']))
+                $this->n_function($_data['<function>'], $w);
+        else
+        {
+            $this->rez.=$w;
+            if(isset($_data['<non_object_ext>']))
+                    $this->n_non_object_ext($_data['<non_object_ext>']);
+        }
+    }
+
+    function n_is_function_or_static_object($_data, $w)
+    {
+        if(isset($_data['<function>']))
+                $this->n_function($_data['<function>'], $w);
+        else if(isset($_data['<static_object>']))
+        {
+            if(isset($_data['<static_object>']['<static_object_member>']['$']))
+            {
+                $this->rez .= '[';
+                $this->n_static_object($_data['<static_object>'], $w);
+                $this->rez .= ']';
+            }
+            else $this->n_static_object($_data['<static_object>'], $w);
+        }
+    }
+
+    function n_index_or_function_or_static_object($_data)//done
+    {
+        if(isset($_data['<is_function_or_static_object>']))
+        {
+            $this->n_is_function_or_static_object($_data['<is_function_or_static_object>'],
+                $_data['w']);
+        }
+        else
+        {
+            $this->rez .= '[';
+
+            if(isset($_data['<object>'])) $this->n_object($_data['<object>']);
+            else if(isset($_data['s'])) $this->rez .=$_data['s'];
+            else if(isset($_data['d'])) $this->rez .=$_data['d'];
+            else if(isset($_data['w'])) $this->rez .="'".$_data['w']."'";
+            else if(isset($_data['e'])) $this->t_e($_data['e'], true);
+
+            $this->rez .= ']';
+        }
+    }
+
+    function n_static_object($_data, $w)//done
+    {
+        $this->n_static_object_member($_data['<static_object_member>'], $w);
+    }
+
+    function n_static_object_member($_data, $w)//done
+    {
+        if(isset($_data['$']))
+        {
+            $this->rez .= $w.'::$'.$_data['w'];
+            if(isset($_data['<object_ext>']))
+                    $this->n_object_ext($_data['<object_ext>']);
+        }
+        else
+        {
+            $this->n_function($_data['<function>'], $w.'::'.$_data['w']);
+        }
+    }
+
+    function n_object_member($_data)//done
+    {
+        if(isset($_data['w'])) $this->rez .= $_data['w'];
+        if(isset($_data['<is_method>']))
+                $this->n_is_method($_data['<is_method>']);
+
+        if(isset($_data['<object_ext>']))
+                $this->n_object_ext($_data['<object_ext>']);
+    }
+
+    function n_is_method($_data)//done
+    {
+
+        if(isset($_data['(']))
+        {
+            $this->rez .= '(';
+
+            if(isset($_data['<parameters>']))
+                    $this->n_parameters($_data['<parameters>']);
+
+            $this->rez .= ')';
         }
     }
 
     function n_parameters($_data)
     {
-        if(isset($_data[','])) $this->rez .= ',';
 
-        /**/
         if(isset($_data['e'])) $this->t_e($_data['e']);
 
-
-        if(isset($_data['<parameters>']) && is_array($_data['<parameters>']))
-                $this->n_parameters($_data['<parameters>']);
+        if(isset($_data['<parameters_ext>']))
+                $this->n_parameters_ext($_data['<parameters_ext>']);
     }
 
-    function n_function($_data)
+    function n_parameters_ext($_data)
     {
-        $fname = current($_data['w']);
-        $_data = $_data['<function>'];
-
-        if(isset($_data['(']))
+        if(isset($_data['e']))
         {
-            if(isset($_data['<parameters>']) && is_array($_data['<parameters>']))
-            {
-                $save_rez = $this->rez;
-                if($save_rez != '') $this->rez = ',';
-                $this->n_parameters($_data['<parameters>']);
-                $ins = $this->rez;
-                $this->rez = $fname.'('.$save_rez.$ins.')';
-            }
-            else $this->rez = $fname.'('.$this->rez.')';
+            $this->rez .= ', ';
+            $this->t_e($_data['e']);
         }
-        else if(isset($_data[':']))
-        {
-            $this->rez.=$fname.'::';
-            $this->n_static($_data['<static>']);
-        }
-
-        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
-        {
-            $this->n_extention($_data['<extention>']);
-        }
+        if(isset($_data['<parameters_ext>']))
+                $this->n_parameters_ext($_data['<parameters_ext>']);
     }
 
-    function n_variable($_data)//done
+    function n_function($_data, $fname)//done
     {
-        if(isset($_data['$']))
-                $this->rez .= "\$gekkon->data['".current($_data['w'])."']";
-        if(isset($_data['@']))
+        $tobeWrapped = $this->rez;
+        $this->rez = $fname.'('.$tobeWrapped;
+
+        if(isset($_data['<parameters>']))
         {
-            $this->rez .= '$'.current($_data['w']);
-        }
-    }
-
-    function n_extention($_data)//done
-    {
-        if(isset($_data['<value>']['<word>']['<function>']) && is_array($_data['<value>']['<word>']['<function>']) && !isset($_data['<value>']['<word>']['<function>']['<static>']))
-        {
-            $this->n_function($_data['<value>']['<word>']);
-        }
-        else if(isset($_data['.']))
-        {
-            $save_rez = $this->rez;
-            $this->rez = '';
-            $this->n_argument($_data['<value>']);
-            $ins = $this->rez;
-            $this->rez = $save_rez.'['.$ins.']';
-        }
-
-        if(isset($_data['<objectmember>']) && is_array($_data['<objectmember>']))
-                $this->n_objectmember($_data['<objectmember>']);
-
-        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
-                $this->n_extention($_data['<extention>']);
-    }
-
-    function n_objectmember($_data)//done
-    {
-        $this->rez.='->';
-        if(isset($_data['<word>'])) $this->n_object_word($_data['<word>']);
-    }
-
-    function n_object_word($_data)
-    {
-        if(isset($_data['<function>']) && is_array($_data['<function>']))
-        {
-            $this->n_object_function($_data); //sent with function name
-        }
-        else if(isset($_data['w'])) $this->rez .= current($_data['w']);
-    }
-
-    function n_object_function($_data)
-    {
-        $mname = current($_data['w']);
-        $_data = $_data['<function>'];
-        if(isset($_data['<parameters>']) && is_array($_data['<parameters>']))
-        {
-            $save_rez = $this->rez;
-            $this->rez = '';
+            if($tobeWrapped != '') $this->rez .= ', ';
             $this->n_parameters($_data['<parameters>']);
-            $ins = $this->rez;
-            $this->rez = $save_rez.$mname.'('.$ins.')';
         }
-        else $this->rez .= $mname.'()';
+        $this->rez .= ')';
 
-        if(isset($_data['<extention>']) && is_array($_data['<extention>']))
-                $this->n_extention($_data['<extention>']);
+        if(isset($_data['<object_ext>']))
+                $this->n_object_ext($_data['<object_ext>']);
     }
 
-    function n_static($_data)
+    function t_e($_data, $scope = false)
     {
-        if(isset($_data['$']))
+
+        $save_rez = $this->rez;
+        $this->rez = '';
+        $rez = $this->exp_compiler->compile_exp($_data);
+        if($rez === false)
         {
-            $this->rez .= '$'.current($_data['w']);
+
+            $this->error .= "Cannot compile sub-expression: $_data\n";
         }
-        else
-        {
-            $nname = current($_data['w']);
-            if(isset($_data['<parameters>']) && is_array($_data['<parameters>']))
-            {
-                $this->rez .= $nname;
-                $save_rez = $this->rez;
-                $this->rez = '';
-                $this->n_parameters($_data['<parameters>']);
-                $ins = $this->rez;
-                $this->rez = $save_rez.'('.$ins.')';
-            }
-            else
-            {
-                $this->rez .= $nname.'()';
-            }
-        }
+        if($scope === true) $rez = '('.$rez.')';
+        $this->rez = $save_rez.$rez;
     }
 
 }
