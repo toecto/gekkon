@@ -36,8 +36,6 @@ rr{$a.pow(2)}<br>
         {empty}
         <tr>
             <td>NoData</td>
-            <td></td>
-            <td></td>
         </tr>
     {/foreach}
 </table>
