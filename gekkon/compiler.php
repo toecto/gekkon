@@ -316,23 +316,24 @@ class GekkonExpCompiler {
     function __construct(&$compiler)
     {
         $this->compiler = $compiler;
-        $this->arg_compiler = new gekkon_arg_compiler($this);
+        $this->arg_compiler = new GekkonArgCompiler($this);
         $this->arg_lexer = new GekkonLexer();
     }
 
     function compile_construction_expressions($data)
     {
-        $cnt = count($data);
-        for($i = 0; $i < $cnt; $i++)
+        $rez = array();
+        foreach($data as $key => $value)
         {
-            if($data[$i]['t'] == '<exp>')
+            if($value['t'] == '<exp>')
             {
-                $t = $this->compile_parsed_exp($data[$i]['v']);
+                $t = $this->compile_parsed_exp($value['v']);
                 if($t === false) return false;
-                $data[$i]['v'] = $t;
+                $rez[$key] = $t;
             }
+            else $rez[$key] = $value['v'];
         }
-        return $data;
+        return $rez;
     }
 
     function compile_exp($str)
@@ -395,8 +396,7 @@ class GekkonExpCompiler {
         {
             $t = strrpos($_str[$i], ' ');
             $val = substr($_str[$i], 0, $t);
-            if(($_rez[$name] = $this->compile_exp($val)) === false)
-                    return false;
+            $_rez[$name] = array('t' => '<exp>', 'v' => $this->parse_expression($val));
 
             $name = trim(substr($_str[$i], $t));
             $i++;
@@ -404,8 +404,7 @@ class GekkonExpCompiler {
         if(isset($_str[$cnt]))
         {
             $val = $_str[$cnt];
-            if(($_rez[$name] = $this->compile_exp($val)) === false)
-                    return false;
+            $_rez[$name] = array('t' => '<exp>', 'v' => $this->parse_expression($val));
         }
         return $_rez;
     }
@@ -414,7 +413,7 @@ class GekkonExpCompiler {
     {
         ob_start();
 
-        $code = "if(0){{$code}\n}";
+        $code = 'if(0){'.$code.'}';
         $result = eval($code);
         ob_get_clean();
 
@@ -428,14 +427,82 @@ class GekkonExpCompiler {
 
     function parse_expression($str)
     {
-        return $this->arg_lexer->parse_expression($str);
+        if(($rez = $this->arg_lexer->parse_expression($str)) == false)
+                $this->compiler->error($this->arg_lexer->error, 'arg_lexer');
+        return $rez;
+    }
+
+    function parse_construction($data, $keys, $strict = true)
+    {
+        $current_keyword = 0;
+        $rez = array();
+        $buffer = array();
+        foreach($data as $item)
+        {
+            if(in_array($item['v'], $keys))
+            {
+                if(count($buffer) > 0)
+                {
+                    $rez[] = array('t' => '<exp>', 'v' => $buffer);
+                    $current_keyword++;
+                    $buffer = array();
+                }
+                if($item['v'] === $keys[$current_keyword])
+                {
+                    $rez[] = array('t' => 'k', 'v' => $item['v']);
+                    $current_keyword++;
+                }
+                else
+                        return $this->compiler->error('Unxpected keyword '.$item['v'].' '.$keys[$current_keyword],
+                            'arg_compiler');
+            }
+            else
+            {
+                if($keys[$current_keyword] === '<exp>') $buffer[] = $item;
+                else
+                        return $this->compiler->error('Keyword "'.$keys[$current_keyword].'" is expected',
+                            'arg_compiler');
+            }
+        }
+
+        if(count($buffer) > 0)
+        {
+            $rez[] = array('t' => '<exp>', 'v' => $buffer);
+            $current_keyword++;
+        }
+        if($current_keyword < count($keys) - 1 && $strict === true)
+                return $this->compiler->error('Keyword "'.$keys[$current_keyword].'" is expected',
+                    'arg_compiler');
+
+        return $rez;
+    }
+
+    function split($data, $splitter)
+    {
+        $rez = array();
+        $current = 0;
+        $buffer = array();
+        foreach($data as $item)
+        {
+            if($item['v'] === $splitter)
+            {
+                $rez[$current] = array('t' => '<exp>', 'v' => $buffer);
+                $current++;
+                $buffer = array();
+            }
+            else $buffer[] = $item;
+        }
+
+        if(count($buffer) > 0)
+                $rez[$current] = array('t' => '<exp>', 'v' => $buffer);;
+        return $rez;
     }
 
 }
 
 // End Of Class ----------------------------------------------------------------
 
-class gekkon_arg_compiler {
+class GekkonArgCompiler {
 
     function __construct(&$exp_compiler)
     {
@@ -456,9 +523,9 @@ class gekkon_arg_compiler {
             '<static_object>' => '::<static_object_member>',
             '<static_object_member>' => '$w<object_ext> | w<function>',
             '<object_member>' => 'w<is_method><object_ext>',
-            '<is_method>' => '|(<parameters>)',
+            '<is_method>' => '| (<parameters>)',
             '<parameters>' => '| e<parameters_ext>',
-            '<parameters_ext>' => ' | ,e<parameters_ext>',
+            '<parameters_ext>' => '| ,e<parameters_ext>',
         ));
     }
 
@@ -507,14 +574,14 @@ class gekkon_arg_compiler {
         }
     }
 
-    function n_object($_data)//done
+    function n_object($_data)
     {
         if(isset($_data['$']))
                 $this->rez .= "\$gekkon->data['".$_data['w']."']";
         if(isset($_data['@'])) $this->rez .= '$'.$_data['w'];
     }
 
-    function n_non_object($_data)//done
+    function n_non_object($_data)
     {
         if(isset($_data['s'])) $this->rez .=$_data['s'];
 
@@ -526,7 +593,7 @@ class gekkon_arg_compiler {
         if(isset($_data['e'])) $this->t_e($_data['e'], true);
     }
 
-    function n_non_object_ext($_data)//done
+    function n_non_object_ext($_data)
     {
         if(isset($_data['<function>']))
                 $this->n_function($_data['<function>'], $_data['w']);
@@ -535,13 +602,13 @@ class gekkon_arg_compiler {
                 $this->n_object_ext($_data['<object_ext>']);
     }
 
-    function n_digit_ext($_data)//done
+    function n_digit_ext($_data)
     {
         if(isset($_data['<double_or_function>']))
                 $this->n_double_or_function($_data['<double_or_function>']);
     }
 
-    function n_double_or_function($_data)//done
+    function n_double_or_function($_data)
     {
         if(isset($_data['d'])) $this->rez .='.'.$_data['d'];
         else
@@ -551,7 +618,7 @@ class gekkon_arg_compiler {
         }
     }
 
-    function n_object_ext($_data)//done
+    function n_object_ext($_data)
     {
         if(isset($_data['<object_member>']))
         {
@@ -568,7 +635,7 @@ class gekkon_arg_compiler {
         }
     }
 
-    function n_constant_ext($_data, $w)//done
+    function n_constant_ext($_data, $w)
     {
         if(isset($_data['<static_object>']))
                 $this->n_static_object($_data['<static_object>'], $w);
@@ -598,7 +665,7 @@ class gekkon_arg_compiler {
         }
     }
 
-    function n_index_or_function_or_static_object($_data)//done
+    function n_index_or_function_or_static_object($_data)
     {
         if(isset($_data['<is_function_or_static_object>']))
         {
@@ -619,12 +686,12 @@ class gekkon_arg_compiler {
         }
     }
 
-    function n_static_object($_data, $w)//done
+    function n_static_object($_data, $w)
     {
         $this->n_static_object_member($_data['<static_object_member>'], $w);
     }
 
-    function n_static_object_member($_data, $w)//done
+    function n_static_object_member($_data, $w)
     {
         if(isset($_data['$']))
         {
@@ -638,7 +705,7 @@ class gekkon_arg_compiler {
         }
     }
 
-    function n_object_member($_data)//done
+    function n_object_member($_data)
     {
         if(isset($_data['w'])) $this->rez .= $_data['w'];
         if(isset($_data['<is_method>']))
@@ -648,7 +715,7 @@ class gekkon_arg_compiler {
                 $this->n_object_ext($_data['<object_ext>']);
     }
 
-    function n_is_method($_data)//done
+    function n_is_method($_data)
     {
 
         if(isset($_data['(']))
@@ -682,7 +749,7 @@ class gekkon_arg_compiler {
                 $this->n_parameters_ext($_data['<parameters_ext>']);
     }
 
-    function n_function($_data, $fname)//done
+    function n_function($_data, $fname)
     {
         $tobeWrapped = $this->rez;
         $this->rez = $fname.'('.$tobeWrapped;

@@ -12,19 +12,19 @@ function gekkon_tag_foreach($compiler, $_tag)
                 return $compiler->error_in_tag('Cannot parse args "'.$_tag['raw_args'].'"',
                     $_tag);
 
-        $args = $exp_compiler->arg_lexer->parse_construction($args_data,
+        $args = $exp_compiler->parse_construction($args_data,
             array('<exp>', 'as', '<exp>', '=', '>', '<exp>', ';', '<exp>'),
             false);
 
 
         if($args === false)
-                $args = $exp_compiler->arg_lexer->parse_construction($args_data,
-                array('<exp>', 'as', '<exp>', ';', '<exp>'));
+                $args = $exp_compiler->parse_construction($args_data,
+                array('<exp>', 'as', '<exp>', ';', '<exp>'), false);
 
 
         if($args !== false)
         {
-
+            $compiler->errors = array();
             if(count($args) > 2)
             {
                 $args = $exp_compiler->compile_construction_expressions($args);
@@ -33,19 +33,19 @@ function gekkon_tag_foreach($compiler, $_tag)
                             $_tag);
 
                 $x_args = array(
-                    'from' => $args[0]['v'],
-                    'item' => $args[2]['v'],
+                    'from' => $args[0],
+                    'item' => $args[2],
                 );
                 if(isset($args[5]))
                 {
-                    $x_args['key'] = $args[2]['v'];
-                    $x_args['item'] = $args[5]['v'];
+                    $x_args['key'] = $args[2];
+                    $x_args['item'] = $args[5];
                 }
-                if(isset($args[4]) && $args[4]['t'] === '<exp>')
+                if(isset($args[4]) && $args[4]['t'] !== '>')
                 {
-                    $x_args['meta'] = $args[4]['v'];
+                    $x_args['meta'] = $args[4];
                 }
-                if(isset($args[7])) $x_args['meta'] = $args[7]['v'];
+                if(isset($args[7])) $x_args['meta'] = $args[7];
                 $args = $x_args;
             }
             else $args = false;
@@ -56,24 +56,24 @@ function gekkon_tag_foreach($compiler, $_tag)
     if($args === false)
     {
         $args = $exp_compiler->parse_args($_tag['raw_args']);
+        $args = $exp_compiler->compile_construction_expressions($args);
+        if(!isset($args['from']))
+                return $compiler->error_in_tag('Missing required argument "from"',
+                    $_tag);
 
-        if($args !== false)
-        {
-            if(!isset($args['from']))
-                    return $compiler->error_in_tag('Missing required argument "from"',
-                        $_tag);
+        if(!isset($args['item']))
+                return $compiler->error_in_tag('Missing required argument "item"',
+                    $_tag);
 
-            if(!isset($args['item']))
-                    return $compiler->error_in_tag('Missing required argument "item"',
-                        $_tag);
-        }
+        if($args === false)
+                return $compiler->error_in_tag('Cannot compile args "'.$_tag['raw_args'].'"',
+                    $_tag);
     }
 
     //Check args parsing results
     if($args === false)
             return $compiler->error_in_tag('Cannot parse args "'.$_tag['raw_args'].'"',
                 $_tag);
-
 
     $meta_init = '';
     $meta_body = '';

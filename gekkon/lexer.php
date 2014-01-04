@@ -9,59 +9,6 @@ class GekkonLexer {
     var $error;
     var $step;
 
-    function parse_construction($data, $keys, $strict = true)
-    {
-        $this->init('');
-        $current_keyword = 0;
-        $rez = array();
-        $buffer = array();
-        foreach($data as $item)
-        {
-            if(in_array($item['v'], $keys))
-            {
-                if(count($buffer) > 0)
-                {
-                    $this->save($buffer, '<exp>');
-                    $current_keyword++;
-                    $buffer = array();
-                }
-                if($item['v'] == $keys[$current_keyword])
-                {
-                    $this->save($item['v'], 'k');
-                    $current_keyword++;
-                }
-                else
-                {
-                    $this->error.= 'Unxpected keyword '.$item['v'].' '.$keys[$current_keyword]."\n";
-                    return false;
-                }
-            }
-            else
-            {
-                if($keys[$current_keyword] == '<exp>') $buffer[] = $item;
-                else
-                {
-                    $this->error.= "Keyword '".$keys[$current_keyword]."' is expected\n";
-                    return false;
-                }
-            }
-        }
-
-        if(count($buffer) > 0)
-        {
-            $this->save($buffer, '<exp>');
-            $current_keyword++;
-        }
-        if($current_keyword < count($keys) - 1 && $strict === true)
-        {
-            $this->error.= "Keyword '".$keys[$current_keyword]."' is expected\n";
-            return false;
-        }
-
-
-        return $this->rez;
-    }
-
     function parse_expression($str)
     {
         $this->init($str);
