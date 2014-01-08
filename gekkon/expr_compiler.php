@@ -1,6 +1,6 @@
 <?php
 
-class GekkonExprCompiler {
+class GekkonExpCompiler {
 
     function __construct(&$compiler)
     {
@@ -27,16 +27,12 @@ class GekkonExprCompiler {
 
     function compile_exp($str)
     {
-
         $data = $this->arg_lexer->parse_expression($str);
         if($data === false)
-        {
+                return $this->compiler->error($this->arg_lexer->error,
+                    'arg_lexer');
 
-            $this->compiler->error($this->arg_lexer->error, 'arg_lexer');
-            return false;
-        }
-        if(($rez = $this->compile_parsed_exp($data)) === false) return false;
-        return $rez;
+        return $this->compile_parsed_exp($data);
     }
 
     function compile_parsed_exp($data)
@@ -111,7 +107,7 @@ class GekkonExprCompiler {
 
     function check_exp_syntax($code)
     {
-        return GekkonExprCompiler::check_syntax('$x='.$code.';');
+        return GekkonExpCompiler::check_syntax('$x='.$code.';');
     }
 
     function parse_expression($str)

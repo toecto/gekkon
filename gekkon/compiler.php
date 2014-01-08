@@ -14,7 +14,7 @@ class GekkonCompiler {
         include_once $gekkon->gekkon_path.'ll_parser.php';
         include_once $gekkon->gekkon_path.'lexer.php';
         include_once $gekkon->gekkon_path.'expr_compiler.php';
-        $this->exp_compiler = new GekkonExprCompiler($this);
+        $this->exp_compiler = new GekkonExpCompiler($this);
     }
 
     function compile($tpl_name)
@@ -168,14 +168,12 @@ class GekkonCompiler {
         if(is_file($tag_file = $this->gekkon->gekkon_path.'tags/'.$_tag['name'].'.php'))
         {
             include_once $tag_file;
-            if(function_exists($_tag['handler'] = 'gekkon_tag_'.$_tag['name']))
-                    $_tag['type'] = 2;
-            else
-            {
-                if(function_exists($_tag['handler'] .= '_single'))
-                        $_tag['type'] = 1;
-            }
         }
+        if(function_exists($_tag['handler'] = 'gekkon_tag_'.$_tag['name']))
+                $_tag['type'] = 2;
+        else if(function_exists($_tag['handler'] .= '_single'))
+                $_tag['type'] = 1;
+
         return $_tag;
     }
 
