@@ -1,0 +1,1 @@
+{foreach $items as $item}{cycle '1', '2', $var3}{/foreach}

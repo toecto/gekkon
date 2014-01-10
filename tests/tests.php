@@ -2,7 +2,7 @@
 require_once "../gekkon/gekkon.php";
 require_once "test_case.php";
 
-error_reporting(0);
+//error_reporting(0);
 
 class Test extends TestCase {
 
@@ -88,7 +88,7 @@ class Test extends TestCase {
 
     function test_method_call()
     {
-        eval("class Mock {
+        eval("class TestMethod {
             public \$name = \"default\";
 
             function action ()
@@ -96,7 +96,7 @@ class Test extends TestCase {
                 return \"true\";
             }
         };");
-        $obj = new Mock();
+        $obj = new TestMethod();
         $gekkon = $this->get_gekkon();
         $gekkon->register('obj', $obj);
         $output = $gekkon->get_display("test_method_call.tpl");
@@ -105,8 +105,10 @@ class Test extends TestCase {
 
     function test_property_call()
     {
-        eval("class Mock {public \$name = \"default\"}");
-        $obj = new Mock();
+        eval("class TestProperty {
+            public \$name = \"default\";
+        }");
+        $obj = new TestProperty();
         $gekkon = $this->get_gekkon();
         $gekkon->register('obj', $obj);
         $output = $gekkon->get_display("test_property_call.tpl");
@@ -132,9 +134,17 @@ class Test extends TestCase {
     function test_tag_if()
     {
         $gekkon = $this->get_gekkon();
-        $gekkon->register('var', true);
+        $gekkon->register('var', 1);
         $output = $gekkon->get_display("test_tag_if.tpl");
         $this->assertEquals("1", trim($output));
+    }
+
+    function test_tag_if_elseif()
+    {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('var', 2);
+        $output = $gekkon->get_display("test_tag_if.tpl");
+        $this->assertEquals("2", trim($output));
     }
 
     function test_tag_if_else()
@@ -192,6 +202,39 @@ class Test extends TestCase {
         $gekkon->register('items', array("one" => 1, "two" => 2, "three" => 3));
         $output = $gekkon->get_display("test_tag_foreach_key.tpl");
         $this->assertEquals("one=1|two=2|three=3", trim($output));
+    }
+
+    function test_tag_foreach_cycle()
+    {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('items', array("one" => 1, "two" => 2, "three" => 3));
+        $gekkon->register('var3', '3');
+        $output = $gekkon->get_display("test_tag_foreach_cycle.tpl");
+        $this->assertEquals("123", trim($output));
+    }
+
+    function test_tag_foreach_ifchange()
+    {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('date_list', array(array("day" => 1, "month" => 1), array("day" => 2, "month" => 1), array("day" => 3, "month" => 2)));
+        $output = $gekkon->get_display("test_tag_foreach_ifchange.tpl");
+        $this->assertEquals("1=123=2", trim($output));
+    }
+
+//    function test_tag_include()
+//    {
+//        $gekkon = $this->get_gekkon();
+//        $output = $gekkon->get_display("test_tag_include.tpl");
+//        echo $output;
+//        $this->assertEquals("1", trim($output));
+//    }
+
+    function test_tag_no_parse()
+    {
+        $gekkon = $this->get_gekkon();
+        $gekkon->register('var', '1');
+        $output = $gekkon->get_display("test_tag_no_parse.tpl");
+        $this->assertEquals("\$var", trim($output));
     }
 }
 
