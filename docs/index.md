@@ -228,6 +228,20 @@ Also, you can specify the `meta` parameter, where declare a variable which will 
 
 
 
+<br>**{for}**<br>
+Loop tag, similar `for` loop in PHP.<br>
+
+	{for $i=0; $i<10; $i++}
+		{$i}
+	{/for}
+
+The first expression `$i=0` is executed once unconditionally at the beginning of the loop.
+
+In the beginning of each iteration, second expression `$i<10)` is evaluated. If it evaluates to `true`, the loop continues and the nested statement(s) are executed. If it evaluates to `false`, the execution of the loop ends.
+
+At the end of each iteration, third expression `$i++` is evaluated (executed).
+
+
 <br>**{if}...{elseif}...{else}..{/if}**<br>
 This tag checks variable value and if the variable is `true` (variable is exists, is not empty and it's not `false`) displays the contents of the block.<br>
 Optionally, can be expanded by `elseif` and `else` tags.
@@ -259,7 +273,7 @@ Optionally, you can specify the following params:
 	// <script src="js/common.js?t=1387906949"></script>
 
 	{link '/js/common.js' min nocache}  
-	// <script src="js/common.min.js?е=1387906949"></script>
+	// <script src="js/common.min.js?t=1387906949"></script>
 
 
 
