@@ -38,7 +38,7 @@ class Gekkon {
                 return r_error('Template '.$tpl_name.' cannot be found at '.$tpl_file,
                 'gekkon');
 
-        //if($bin_time<$tpl_time)
+        if($bin_time < $tpl_time)
         {
             if(!$this->compile($tpl_name))
                     return r_error('Cannot compile '.$tpl_name, 'gekkon');
