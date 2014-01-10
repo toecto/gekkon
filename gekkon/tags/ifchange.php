@@ -2,9 +2,6 @@
 
 function gekkon_tag_ifchange($compiler, $_tag)
 {
-    $_rez = '';
-
-
     //Parameters
     $exp = false;
     if(trim($_tag['raw_args']) !== '')
@@ -24,7 +21,7 @@ function gekkon_tag_ifchange($compiler, $_tag)
     $else = '';
     if(isset($content[1]))
     {
-        $else = 'else {'.
+        $else = "else {\n".
             $compiler->compile_parsed_str($content[1]).
             "}\n";
     }

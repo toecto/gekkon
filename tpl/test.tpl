@@ -73,3 +73,12 @@ rr{$a.pow(2)}<br>
 {$value} {ifchange $value}chaged{else}not changed{/ifchange}
     <br>
 {/foreach}
+    
+    
+    
+    <div>for loop</div>
+    {set $now=time()}
+{for $i=0; $i<365;$i++}
+    {ifchange}<br>{@ date('Y F',$now+$i*60*60*24)}{/ifchange}
+    {@ 'd'.date($now+$i*60*60*24)}
+{/for}
