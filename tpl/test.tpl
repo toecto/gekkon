@@ -47,3 +47,29 @@ rr{$a.pow(2)}<br>
 {foreach $arr as $key=>$value;@data}
     row{cycle "x","y","z";$globalCycle};{$key}=>{$value} {@data.print_r()}<br>
 {/foreach}
+
+
+<div>If else if</div>
+{foreach $arr as $key=>$value;@data}
+    {$key}{if $key==0}
+        Key is zero!
+    {elseif  $key==1}
+        Key is one!
+    {elseif  $key==2}
+        Key is two!
+        {else}
+            Else!
+    {/if}
+
+    
+    <br>
+{/foreach}
+
+
+
+{set $arr2=array('aaa','aaa','ccc','ccc')}
+<div>Ifchange</div>
+{foreach $arr2 as $key=>$value}
+{$value} {ifchange $value}chaged{else}not changed{/ifchange}
+    <br>
+{/foreach}

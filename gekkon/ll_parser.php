@@ -40,7 +40,7 @@ class GekkonLLParser {
         {
             foreach($term as $s => $t)
             {
-                if($s == '<empty>')
+                if($s === '<empty>')
                 {
                     foreach($this->_follow[$left] as $fs => $x)
                     {
@@ -63,7 +63,7 @@ class GekkonLLParser {
             foreach($rules as $rule)
             {
                 $rule = trim($rule);
-                if($rule == '')
+                if($rule === '')
                         $rule = '<empty>'; //it is really a terminal symbol
                 $rule = str_replace('\s', ' ', $rule);
                 $this->_grammar[] = array('left' => $nt, 'right' => $this->parse_rule($rule));
@@ -171,7 +171,7 @@ class GekkonLLParser {
                     {
                         foreach($this->_firsts[$s] as $k => $tt)
                         {
-                            if($k != '<empty>')
+                            if($k !== '<empty>')
                             {
                                 $this->_follow[$left][$k] = $tt;
                             }
@@ -200,7 +200,7 @@ class GekkonLLParser {
         if(!isset($this->_follow[$from])) $this->find_follow_term($from);
         foreach($this->_follow[$from] as $k => $tt)
         {
-            if($k != '<empty>')
+            if($k !== '<empty>')
             {
                 $this->_follow[$to][$k] = $tt;
             }
@@ -264,9 +264,9 @@ class GekkonLLParser {
             }
             //$this->print_stack($_stack);
             //echo $st.'=='.$char_type."\n\n";
-            if($st == $char_type)
+            if($st === $char_type)
             {
-                if($st == '$' && count($_stack) <= 1) break;
+                if($st === '$' && count($_stack) <= 1) break;
                 $now++;
                 $_tree->add($char_value);
             }
@@ -275,7 +275,7 @@ class GekkonLLParser {
                 if($this->isTerminal($st) || $this->_fsm_map[$st][$char_type] === 'none')
                 {
 
-                    if($st != '<empty>')
+                    if($st !== '<empty>')
                     {
                         $tt = '';
                         if($this_str) $tt = substr($_str, $now);
@@ -372,11 +372,11 @@ class GekkonTree {
         $_rez = array();
         foreach($this->data as $k => $v)
         {
-            if($v['fk'] == $fk)
+            if($v['fk'] === $fk)
             {
 
                 $t = $this->real($k);
-                if($t != '<empty>')
+                if($t !== '<empty>')
                 {
                     $_rez[$v['data']] = $t;
                 }
