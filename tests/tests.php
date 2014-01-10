@@ -218,7 +218,7 @@ class Test extends TestCase {
         $gekkon = $this->get_gekkon();
         $gekkon->register('date_list', array(array("day" => 1, "month" => 1), array("day" => 2, "month" => 1), array("day" => 3, "month" => 2)));
         $output = $gekkon->get_display("test_tag_foreach_ifchange.tpl");
-        $this->assertEquals("1=123=2", trim($output));
+        $this->assertEquals("1=1203=2", trim($output));
     }
 
     function test_tag_for()
@@ -228,13 +228,12 @@ class Test extends TestCase {
         $this->assertEquals("0123456789", trim($output));
     }
 
-//    function test_tag_include()
-//    {
-//        $gekkon = $this->get_gekkon();
-//        $output = $gekkon->get_display("test_tag_include.tpl");
-//        echo $output;
-//        $this->assertEquals("1", trim($output));
-//    }
+    function test_tag_include()
+    {
+        $gekkon = $this->get_gekkon();
+        $output = $gekkon->get_display("test_tag_include.tpl");
+        $this->assertEquals("1", trim($output));
+    }
 
     function test_tag_no_parse()
     {

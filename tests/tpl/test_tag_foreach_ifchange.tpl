@@ -1,1 +1,1 @@
-{foreach from=$date_list item=$date}{$date.day}{ifchange}={$date.month}{/ifchange}{/foreach}
+{foreach from=$date_list item=$date}{$date.day}{ifchange}={$date.month}{else}0{/ifchange}{/foreach}
