@@ -221,6 +221,13 @@ class Test extends TestCase {
         $this->assertEquals("1=123=2", trim($output));
     }
 
+    function test_tag_for()
+    {
+        $gekkon = $this->get_gekkon();
+        $output = $gekkon->get_display("test_tag_for.tpl");
+        $this->assertEquals("0123456789", trim($output));
+    }
+
 //    function test_tag_include()
 //    {
 //        $gekkon = $this->get_gekkon();
