@@ -104,7 +104,7 @@ class GekkonCompiler {
         $line = 0;
         while($_str != '')
         {
-            if(!preg_match('/\{(\s*([\@\$\(a-z_A-Z]+)(\s*[^\}\n]+)?)\}/us',
+            if(!preg_match('/\{(\s*([\=\@\$\(a-z_A-Z]+)(\s*[^\}\n]+)?)\}/us',
                     $_str, $_tag, PREG_OFFSET_CAPTURE))
             {
                 $rez[] = array('name' => '<static>', 'content' => $_str);
@@ -159,9 +159,11 @@ class GekkonCompiler {
     {
         $_tag['type'] = 0;
 
-        if($_tag['name'][0] == '@' || $_tag['name'][0] == '$' || $_tag['name'][0] == '(')
+        if($_tag['name'][0] === '@' || $_tag['name'][0] === '$' || $_tag['name'][0] === '=')
         {
             $_tag['raw_args'] = $_tag['raw_in'];
+            if($_tag['raw_args'][0] === '=')
+                    $_tag['raw_args'] = substr($_tag['raw_args'], 1);
             $_tag['name'] = 'echo';
         }
 

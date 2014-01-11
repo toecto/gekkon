@@ -3,7 +3,7 @@ qq{set $a = 1}<br>
 ww{$a}<br>
 ee{$a+=2}
 rr{$a.pow(2)}<br>
-{@ "Str".strtoupper()}
+{="Str".strtoupper()}
 {set $arr=array('aaa','bbb','ccc','ddd')}
 {set $arr_empty=array()}
 <table border>
@@ -73,7 +73,14 @@ rr{$a.pow(2)}<br>
     
 <div>for loop</div>
 {set $now=time()}
-{for $i=0; $i<365;$i++}
+{for $i=0; $i<65;$i++}
+{ifchange}<div><b>{@ date('Y F',$now+$i*60*60*24)}</b></div>{/ifchange}
+{echo 'd'.date($now+$i*60*60*24)}
+{/for}
+    
+<div>for loop2</div>
+{set $now=time()}
+{for from=0 key=$i to=65}
 {ifchange}<div><b>{@ date('Y F',$now+$i*60*60*24)}</b></div>{/ifchange}
 {echo 'd'.date($now+$i*60*60*24)}
 {/for}
