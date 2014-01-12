@@ -18,7 +18,7 @@ class Gekkon {
         $this->display_errors = ini_get('display_errors') == 'on';
     }
 
-    function register($name, &$data)
+    function register($name, $data)
     {
         $this->data[$name] = &$data;
     }

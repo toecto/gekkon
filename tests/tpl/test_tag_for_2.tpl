@@ -1,0 +1,1 @@
+{for from=0 to=10 key=$i}{$i}{/for}
