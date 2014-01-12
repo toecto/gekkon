@@ -1,20 +1,28 @@
+{#one line comment#}
 Test template<br>
 qq{set $a = 1}<br>
 ww{$a}<br>
 ee{$a+=2}
 rr{$a.pow(2)}<br>
+{#
+Multiline
+comment
+ #}
 {="Str".strtoupper()}
 {set $arr=array('aaa','bbb','ccc','ddd')}
 {set $arr_empty=array()}
+
 <table border>
     {foreach from=$arr item=$value key=$key meta=@data}
+        
         <tr class="">
             <td>row{cycle "0", "1";$globalCycle}</td>
-            <td>row{cycle "a","b","c"}</td>
+            <td>row{cycle "a","b","c"} </td>
             <td>{$key}</td>
             <td>{$value}</td>
             <td>{@data.print_r()}</td>
         </tr>
+       
         {empty}
         <tr>
             <td>NoData</td>
@@ -77,10 +85,14 @@ rr{$a.pow(2)}<br>
 {ifchange}<div><b>{@ date('Y F',$now+$i*60*60*24)}</b></div>{/ifchange}
 {echo 'd'.date($now+$i*60*60*24)}
 {/for}
-    
+   
 <div>for loop2</div>
 {set $now=time()}
-{for from=0 key=$i to=65}
-{ifchange}<div><b>{@ date('Y F',$now+$i*60*60*24)}</b></div>{/ifchange}
-{echo 'd'.date($now+$i*60*60*24)}
-{/for}
+{cache timeout=3} 
+{spaceless}
+    {for from=0 key=$i to=65}
+        {ifchange}<div><b>{@ date('Y F',$now+$i*60*60*24)}</b></div>{/ifchange}
+        {echo 'd'.date($now+$i*60*60*24)}
+    {/for}
+{/spaceless}
+{/cache}
