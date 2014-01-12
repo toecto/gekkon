@@ -129,15 +129,6 @@ This tag doesn't support nesting.
 	{# <p>This is commented and don’t render. {$foo} {now}</p> #}
 
 
-<br>**{csrf_token}**<br>
-This tag is used to protect against CSRF-attacks. <br>
-Displays hidden input containing the token.
-
-	{csrf_token}
-	
-	// <input type='hidden' name='csrf_token' value='ZIPpLNMVYXEsKhYrT7mbnlnddLXfsn5k' />`
-
-
 <br>**{cycle}**<br>
 Returns one of the passed arguments on each call. The first argument will be returned on the first call, the second on the second call and so on.<br>
 After the last argument, enumeration begins again from the first argument.
@@ -206,9 +197,30 @@ You can use `{empty}` condition for ease of handling when the passed array is em
      	Sorry, items not found...
 	{/foreach}
 
+This tag has a second syntax:
+	
+	{foreach $data as $item}
+    	<li>{$item}</li>
+	{/foreach}
+	
+	{foreach $data as $key=>$value}
+    	<li>{$key}, {$value}</li>
+	{/foreach}
+
 Also, you can specify the `meta` parameter, where declare a variable which will be contain meta-information about the counters of iteration.
 
 	{foreach from=$data item=$item meta=$loop}
+     	<li>{$loop.counter} {$item}</li>
+     	{if $loop.last}
+         	<li>...</li>
+     	{/if}
+	{empty}
+     	Sorry, items not found...
+	{/foreach}
+
+or
+
+	{foreach $data as $item; $loop}
      	<li>{$loop.counter} {$item}</li>
      	{if $loop.last}
          	<li>...</li>
@@ -231,6 +243,12 @@ Also, you can specify the `meta` parameter, where declare a variable which will 
 <br>**{for}**<br>
 Loop tag, similar `for` loop in PHP.<br>
 
+	{for from=0 to=10 key=$i}
+		{$i}
+	{/for}
+
+This tag has a second syntax:
+
 	{for $i=0; $i<10; $i++}
 		{$i}
 	{/for}
@@ -240,6 +258,8 @@ The first expression `$i=0` is executed once unconditionally at the beginning of
 In the beginning of each iteration, second expression `$i<10)` is evaluated. If it evaluates to `true`, the loop continues and the nested statement(s) are executed. If it evaluates to `false`, the execution of the loop ends.
 
 At the end of each iteration, third expression `$i++` is evaluated (executed).
+
+
 
 
 <br>**{if}...{elseif}...{else}..{/if}**<br>
