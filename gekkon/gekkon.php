@@ -18,14 +18,18 @@ class Gekkon {
         $this->display_errors = ini_get('display_errors') == 'on';
     }
 
-    function register($name, $data)
+    function register($name, &$data)
+    {
+        $this->data[$name] = $data;
+    }
+
+    function assign($name, $data)
     {
         $this->data[$name] = $data;
     }
 
     function display($tpl_name)
     {
-        r_log('Display: '.$tpl_name, 'gekkon');
         $tpl_time = 0;
         if(is_file($tpl_file = $this->full_tpl_path($tpl_name)))
                 $tpl_time = filemtime($tpl_file);
@@ -35,13 +39,14 @@ class Gekkon {
                 $bin_time = filemtime($bin_file);
 
         if($tpl_time == 0)
-                return r_error('Template '.$tpl_name.' cannot be found at '.$tpl_file,
-                'gekkon');
+                return $this->error('Template '.$tpl_name.' cannot be found at '.$tpl_file,
+                    'gekkon');
 
         if($bin_time < $tpl_time)
         {
             if(!$this->compile($tpl_name))
-                    return r_error('Cannot compile '.$tpl_name, 'gekkon');
+                    return $this->error('Cannot compile '.$tpl_name, 'gekkon');
+            $this->clear_cache($tpl_name);
         }
         $this->tpl_name = $tpl_name;
         include_once $bin_file;
@@ -65,30 +70,38 @@ class Gekkon {
 
     function cache_path($tpl_name)
     {
-        return dirname($this->full_bin_path($tpl_name)).'/'.$this->fn_name($tpl_name).'_cache/';
+        return dirname($this->full_bin_path($tpl_name)).'/cache/';
     }
 
-    function cache_file($stream_raw = 'none')
+    function cache_file($tpl_name, $tag = '')
     {
-        global $_reactor;
-        $cid = MD5(serialize(array($stream_raw, $_reactor['language'])));
-        return $cid[1].$cid[2].'/'.$cid;
+        $name = md5(serialize($tag).$tpl_name);
+        return $name[0].$name[1].'/'.$name;
     }
 
-    function clear_cache($tpl_name, $stream_raw = '')
+    function clear_cache($tpl_name, $tag = '')
     {
-        r_log('clear_cache '.$tpl_name.' - '.$stream_raw, 'gekkon');
         $cache_path = $this->cache_path($tpl_name);
 
-        if($stream_raw != '')
+        if($tag !== '')
         {
-            $cache_file = $cache_path.$this->cache_file($stream_raw);
-            r_log('cid '.$cache_file, 'gekkon');
+            $cache_file = $cache_path.$this->cache_file($tpl_name, $tag);
 
             if(is_file($cache_file)) unlink($cache_file);
             return;
         }
-        if(is_dir($cache_path)) $this->clear_dir($cache_path);
+        else if(is_dir($cache_path)) $this->clear_dir($cache_path);
+    }
+
+    function create_dir($path)
+    {
+        if(substr($path, -1) == '/') $path = substr($path, 0, -1);
+        if(!is_dir($path))
+        {
+            $parent = dirname($path);
+            Gekkon::create_dir($parent);
+            mkdir($path);
+        }
     }
 
     function clear_dir($path)
@@ -96,6 +109,7 @@ class Gekkon {
         if($dh = opendir($path))
         {
             while(($file = readdir($dh)) !== false)
+            {
                 if($file[0] != '.')
                 {
                     if(is_dir($path.$file))
@@ -105,6 +119,7 @@ class Gekkon {
                     }
                     else unlink($path.$file);
                 }
+            }
             closedir($dh);
         }
     }
@@ -158,15 +173,4 @@ class Gekkon {
 }
 
 //end of class -----------------------------------------------------------------
-
-function r_log($msg)
-{
-
-}
-
-function r_error($msg)
-{
-    echo $msg."<br>\n";
-    return false;
-}
 
