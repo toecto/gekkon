@@ -20,7 +20,6 @@ class GekkonCompiler {
     function compile($tpl_name)
     {
         $this->error = array();
-        $this->tpl_path = $this->gekkon->tpl_path;
         $tpl_file = $this->gekkon->full_tpl_path($tpl_name);
         if(!is_file($tpl_file))
         {
@@ -30,7 +29,6 @@ class GekkonCompiler {
 
         $this->file_list = array();
         $this->bin_file = $this->gekkon->full_bin_path($tpl_name);
-        if(strpos($this->bin_file, '/!') !== false) $this->tpl_path = '';
 
         $this->get_file_list();
 
@@ -255,12 +253,12 @@ class GekkonCompiler {
 
     function get_file_list($dir = '')
     {
-        $list = scandir($this->gekkon->tpl_base_path.$this->tpl_path.$dir);
+        $list = scandir($this->gekkon->tpl_base_path.$this->gekkon->tpl_path.$dir);
         foreach($list as $file)
         {
             if($file[0] != '.')
             {
-                if(is_dir($this->gekkon->tpl_base_path.$this->tpl_path.$dir.$file))
+                if(is_dir($this->gekkon->tpl_base_path.$this->gekkon->tpl_path.$dir.$file))
                         $this->get_file_list($dir.$file.'/');
                 else if(strrchr($file, '.') == '.tpl' && $this->bin_file == $this->gekkon->full_bin_path($dir.$file))
                         $this->file_list[] = $dir.$file;

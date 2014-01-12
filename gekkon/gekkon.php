@@ -149,10 +149,7 @@ class Gekkon {
         }
         else $bin_name = basename($tpl_name);
 
-        if($tpl_name[0] == '!')
-                $bin_path = $this->bin_path.abs(crc32($tpl_name)).'/';
-        else
-                $bin_path = $this->bin_path.abs(crc32($this->tpl_path.$tpl_name)).'/';
+        $bin_path = $this->bin_path.abs(crc32($this->tpl_path.$tpl_name)).'/';
 
         return $bin_path.$bin_name.'.php';
     }
