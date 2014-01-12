@@ -48,7 +48,7 @@ function gekkon_tag_for($compiler, $_tag)
 
 
     return "for(".$args[0].";".$args[2].";".$args[4]."){\n".
-        $compiler->compile_str($_tag['content']).
+        $compiler->compile_str($_tag['content'], $_tag).
         "}\n";
 }
 
