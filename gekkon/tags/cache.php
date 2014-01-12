@@ -28,10 +28,8 @@ function gekkon_tag_cache($compiler, $_tag)
         "\$gekkon->create_dir(dirname(\$_gkn_cache_file));\n".
         "file_put_contents(\$_gkn_cache_file,\$_gkn_cache_show=ob_get_contents());\n".
         "ob_end_clean();\n".
-        "echo 'No cache';\n".
         "echo \$_gkn_cache_show;\n".
         "}else{\n".
-        "echo 'Cache';\n".
         "readfile(\$_gkn_cache_file);\n".
         "}\n";
 
