@@ -20,7 +20,7 @@ class Gekkon {
 
     function register($name, &$data)
     {
-        $this->data[$name] = $data;
+        $this->data[$name] = &$data;
     }
 
     function assign($name, $data)
