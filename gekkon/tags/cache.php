@@ -17,7 +17,7 @@ function gekkon_tag_cache($compiler, $_tag)
     $timeout = $args['timeout'];
 
     $rez = "\$_gkn_cache_file=".
-        var_export($compiler->gekkon->cache_path($compiler->tpl_name), true).
+        var_export($compiler->gekkon->cache_dir($compiler->tpl_name), true).
         ".\$gekkon->cache_file(".var_export($compiler->tpl_name, true).",$tag);\n".
         "if(is_file(\$_gkn_cache_file))".
         "\$_gkn_cache_time=filemtime(\$_gkn_cache_file);\n".

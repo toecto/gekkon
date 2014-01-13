@@ -71,7 +71,7 @@ class Gekkon {
         return 'gekkon_'.strtr($this->tpl_path.$tpl_name, '/!.', '___');
     }
 
-    function cache_path($tpl_name)
+    function cache_dir($tpl_name)
     {
         return dirname($this->full_bin_path($tpl_name)).'/cache/';
     }
@@ -86,7 +86,7 @@ class Gekkon {
     {
         if($tag !== '')
         {
-            $cache_file = $this->cache_path($tpl_name).
+            $cache_file = $this->cache_dir($tpl_name).
                 $this->cache_file($tpl_name, $tag);
 
             if(is_file($cache_file)) unlink($cache_file);
