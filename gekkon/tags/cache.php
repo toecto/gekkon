@@ -11,14 +11,14 @@ function gekkon_tag_cache($compiler, $_tag)
     }
 
     if(!isset($args['timeout'])) $args['timeout'] = 0; //save it forever!
-    if(!isset($args['tag'])) $args['tag'] = "''"; //save it forever!
+    if(!isset($args['id'])) $args['id'] = "''"; //save it forever!
     $salt = '_gkn_cache'.$compiler->getUID().$compiler->tpl_name;
-    $tag = $args['tag'];
+    $id = $args['id'];
     $timeout = $args['timeout'];
 
     $rez = "\$_gkn_cache_file=".
         var_export($compiler->gekkon->cache_dir($compiler->tpl_name), true).
-        ".\$gekkon->cache_file(".var_export($compiler->tpl_name, true).",$tag);\n".
+        ".\$gekkon->cache_file(".var_export($compiler->tpl_name, true).",$id);\n".
         "if(is_file(\$_gkn_cache_file))".
         "\$_gkn_cache_time=filemtime(\$_gkn_cache_file);\n".
         "else \$_gkn_cache_time=false;".

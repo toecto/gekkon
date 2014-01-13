@@ -76,18 +76,18 @@ class Gekkon {
         return dirname($this->full_bin_path($tpl_name)).'/cache/';
     }
 
-    function cache_file($tpl_name, $tag = '')
+    function cache_file($tpl_name, $id = '')
     {
-        $name = md5(serialize($tag).$tpl_name);
+        $name = md5(serialize($id).$tpl_name);
         return $name[0].$name[1].'/'.$name;
     }
 
-    function clear_cache($tpl_name, $tag = '')
+    function clear_cache($tpl_name, $id = '')
     {
-        if($tag !== '')
+        if($id !== '')
         {
             $cache_file = $this->cache_dir($tpl_name).
-                $this->cache_file($tpl_name, $tag);
+                $this->cache_file($tpl_name, $id);
 
             if(is_file($cache_file)) unlink($cache_file);
             return;
