@@ -49,10 +49,10 @@ class GekkonCompiler {
     function compile_file($tpl_name)
     {
         $this->tpl_name = $tpl_name;
+        $full_tpl_path = $this->gekkon->full_tpl_path($tpl_name);
         return "\nfunction ".$this->gekkon->fn_name($tpl_name)."(&\$gekkon){\n".
-            '$_gkn_tpl_file='.var_export($tpl_name, true).";\n".
-            '$_gkn_bin_dir='.var_export(dirname($this->bin_file), true).";\n".
-            $this->compile_str(file_get_contents($this->gekkon->full_tpl_path($tpl_name))).
+            '// Template file: '.$full_tpl_path."\n".
+            $this->compile_str(file_get_contents($full_tpl_path)).
             "}\n";
         $this->tpl_name = '';
     }

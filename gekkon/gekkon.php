@@ -16,6 +16,7 @@ class Gekkon {
         $this->gekkon_path = dirname(__file__).'/';
         $this->compiler = false;
         $this->display_errors = ini_get('display_errors') == 'on';
+        $this->tpl_name = '';
     }
 
     function register($name, $data)
@@ -44,14 +45,16 @@ class Gekkon {
 
         if($bin_time < $tpl_time)
         {
+            $this->clear_cache($tpl_name);
             if(!$this->compile($tpl_name))
                     return $this->error('Cannot compile '.$tpl_name, 'gekkon');
-            $this->clear_cache($tpl_name);
         }
+        $tpl_name_save = $this->tpl_name;
         $this->tpl_name = $tpl_name;
         include_once $bin_file;
         $t = $this->fn_name($tpl_name);
         $t($this);
+        $this->tpl_name = $tpl_name_save;
     }
 
     function get_display($tpl_name)
@@ -81,16 +84,15 @@ class Gekkon {
 
     function clear_cache($tpl_name, $tag = '')
     {
-        $cache_path = $this->cache_path($tpl_name);
-
         if($tag !== '')
         {
-            $cache_file = $cache_path.$this->cache_file($tpl_name, $tag);
+            $cache_file = $this->cache_path($tpl_name).
+                $this->cache_file($tpl_name, $tag);
 
             if(is_file($cache_file)) unlink($cache_file);
             return;
         }
-        else if(is_dir($cache_path)) $this->clear_dir($cache_path);
+        else $this->clear_dir(dirname($this->full_bin_path($tpl_name)).'/');
     }
 
     function create_dir($path)
