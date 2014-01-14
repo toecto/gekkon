@@ -1,6 +1,6 @@
 <?php
 
-//version 2.0
+//version 4.1
 class Gekkon {
 
     var $bin_path;
