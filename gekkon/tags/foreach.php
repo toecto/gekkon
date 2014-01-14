@@ -41,7 +41,7 @@ function gekkon_tag_foreach($compiler, $_tag)
                     $x_args['key'] = $args[2];
                     $x_args['item'] = $args[5];
                 }
-                if(isset($args[4]) && $args[4]['t'] !== '>')
+                if(isset($args[4]['t']) && $args[4]['t'] !== '>')
                 {
                     $x_args['meta'] = $args[4];
                 }
