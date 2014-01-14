@@ -19,7 +19,7 @@ class Gekkon {
         $this->tpl_name = '';
     }
 
-    function register($name, $data)
+    function register($name, &$data)
     {
         $this->data[$name] = &$data;
     }
