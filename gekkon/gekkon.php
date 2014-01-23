@@ -19,6 +19,8 @@ class Gekkon {
         $this->display_errors = ini_get('display_errors') == 'on';
         $this->tpl_name = '';
         $this->compiler_settings = array();
+
+        $this->data = array();
     }
 
     function register($name, &$data)
@@ -31,7 +33,7 @@ class Gekkon {
         $this->data[$name] = $data;
     }
 
-    function display($tpl_name)
+    function display($tpl_name, $scope_data = false, $_scope = false)
     {
         $tpl_time = 0;
         if(is_file($tpl_file = $this->full_tpl_path($tpl_name)))
@@ -45,7 +47,7 @@ class Gekkon {
                 return $this->error('Template '.$tpl_name.' cannot be found at '.$tpl_file,
                     'gekkon');
 
-        //if($bin_time < $tpl_time)
+        if($bin_time < $tpl_time)
         {
             $this->clear_cache($tpl_name);
             if(!$this->compile($tpl_name))
@@ -59,14 +61,20 @@ class Gekkon {
         {
             include_once $bin_file;
         }
-        $fn_nme($this);
+        if($_scope === false) $_scope = $this->data;
+        if($scope_data !== false)
+        {
+            $_scope = $scope_data;
+            $_scope['global'] = &$this->data;
+        }
+        $fn_nme($this, $_scope);
         $this->tpl_name = $tpl_name_save;
     }
 
-    function get_display($tpl_name)
+    function get_display($tpl_name, $scope_data = false, $_scope = false)
     {
         ob_start();
-        $this->display($tpl_name);
+        $this->display($tpl_name, $scope_data, $_scope);
         $out = ob_get_contents();
         ob_end_clean();
         return $out;
@@ -207,4 +215,3 @@ class Gekkon {
 }
 
 //end of class -----------------------------------------------------------------
-

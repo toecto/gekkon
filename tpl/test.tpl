@@ -54,7 +54,7 @@ comment
 
 
 <div>If else if</div>
-{foreach $arr as $key=>$value;@data}
+{foreach $arr.array_reverse(true) as $key=>$value;@data}
     {$key}
     {if $key==0}
         Key is zero!
