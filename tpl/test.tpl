@@ -8,6 +8,7 @@ rr{$a.pow(2)}<br>
 Multiline
 comment
  #}
+ {{$a}}
 {="Str".strtoupper()}
 {set $arr=array('aaa','bbb','ccc','ddd')}
 {set $arr_empty=array()}
