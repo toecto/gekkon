@@ -13,11 +13,24 @@ comment
 {set $arr=array('aaa','bbb','ccc','ddd')}
 {set $arr_empty=array()}
 
+<div>
+    <b>Scope</b><br>
+{set $local='outside';$lol=111}
+{$local}<br>
+{use @scope.array_merge(array('lol'=>123))}
+{$lol}
+{$local}<br>
+{set $local='inside'}
+{$local}<br>
+{/use}
+{$lol}<br>
+{$local}<br>
+</div>
 <table border>
     {foreach from=$arr item=$value key=$key meta=@data}
         
         <tr class="">
-            <td>row{cycle "0", "1";$globalCycle}</td>
+            <td>row{cycle "0", "1" data=$globalCycle}</td>
             <td>row{cycle "a","b","c"} </td>
             <td>{$key}</td>
             <td>{$value}</td>
@@ -50,7 +63,7 @@ comment
 
 <div>Another foreach syntax</div>
 {foreach $arr as $key=>$value;@data}
-    row{cycle "x","y","z";$globalCycle};{$key}=>{$value} {@data.print_r()}<br>
+    row{cycle "x","y","z" data=$globalCycle};{$key}=>{$value} {@data.print_r()}<br>
 {/foreach}
 
 
