@@ -1,4 +1,5 @@
 <?php
+
 require_once "../gekkon/gekkon.php";
 require_once "test_case.php";
 
@@ -8,7 +9,8 @@ class Test extends TestCase {
 
     function get_gekkon()
     {
-        return new Gekkon(dirname(__file__), dirname(__file__).'/tpl/tpl_bin/', '/tpl/');
+        return new Gekkon(dirname(__file__).'/tpl/',
+                dirname(__file__).'/tpl/tpl_bin/');
     }
 
     function test_var()
@@ -195,7 +197,6 @@ class Test extends TestCase {
         $this->assertEquals("_|1-0-1-3-2||2-1-2-2-1||3-2-3-1-0|_", trim($output));
     }
 
-
     function test_tag_foreach_key()
     {
         $gekkon = $this->get_gekkon();
@@ -216,7 +217,9 @@ class Test extends TestCase {
     function test_tag_foreach_ifchange()
     {
         $gekkon = $this->get_gekkon();
-        $gekkon->assign('date_list', array(array("day" => 1, "month" => 1), array("day" => 2, "month" => 1), array("day" => 3, "month" => 2)));
+        $gekkon->assign('date_list',
+                array(array("day" => 1, "month" => 1), array("day" => 2, "month" => 1),
+            array("day" => 3, "month" => 2)));
         $output = $gekkon->get_display("test_tag_foreach_ifchange.tpl");
         $this->assertEquals("1=1203=2", trim($output));
     }
@@ -249,6 +252,7 @@ class Test extends TestCase {
         $output = $gekkon->get_display("test_tag_no_parse.tpl");
         $this->assertEquals("\$var", trim($output));
     }
+
 }
 
 $tests = new Test();

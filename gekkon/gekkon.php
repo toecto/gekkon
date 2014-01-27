@@ -118,8 +118,11 @@ class Gekkon {
         if(!$this->compiler)
         {
             include_once $this->gekkon_path.'settings.php';
+            if(isset($settings))
+            {
+                $this->settings += $settings;
+            }
             Gekkon::include_dir($this->gekkon_path.'compiler');
-            $this->settings += $settings;
             $this->compiler = new GekkonCompiler($this);
         }
         return $this->compiler->compile($tpl_name);
