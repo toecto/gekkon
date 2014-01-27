@@ -2,7 +2,7 @@
 Gekkon has some settings that you can change after initialization.
 
 ```php
-$gekkon = new Gekkon($path.'tpl/', $path.'/tpl_cache/');
+$gekkon = new Gekkon('/path/to/templates/', '/path/to/compiled/templates/');
 $gekkon->settings['auto_escape'] = true;
 ```
 
@@ -25,7 +25,7 @@ Templating syntax setting.
 You can specify the characters for open and closing tags:
 
 ```php
-$gekkon = new Gekkon($path.'tpl/', $path.'/tpl_cache/');
+$gekkon = new Gekkon('/path/to/templates/', '/path/to/compiled/templates/');
 $gekkon->settings['tag_systems']['echo'] = array(
     'open' => '{{',
     'close' => '}}',
