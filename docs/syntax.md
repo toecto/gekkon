@@ -1,5 +1,4 @@
 # Gekkon Syntax
-===
 
 Gekkon syntax similar to the [Smarty](http://www.smarty.net/) with some differences.
 
@@ -10,7 +9,7 @@ A template contains variables or expressions, which get replaced with values whe
 - Use `{tagName}...HTML content...{/tagName}` markup in your template files to display dynamic content generated through foreach loops or conditional statements.
 
 
-# Variables
+## Variables
 
 | Template syntax | Description | PHP equivalent |
 |:----------------|:------------|:-------------|
@@ -27,7 +26,7 @@ Also, you can use variables to access the value of an associative array as a key
 
 
 
-# Functions
+## Functions
 
 You can call functions (including built-in PHP):
 
@@ -49,7 +48,7 @@ and object fields:
 	{$obj->field_name}
 
 
-# Expressions 
+## Expressions
 
 	{$var + 1}
 	{$var1 * $var2}
@@ -61,7 +60,7 @@ You can use the result of the expressions when accessing an associative array. T
 	{$var.($arr.1.foo()).bar()}
 
 
-# Template tags
+## Template tags
 
 All template tags are contained within the structure.
 
@@ -81,7 +80,7 @@ including a key-value format:
 > Order of the parameters does not matter
 
 
-##Gekkon built-in tags:
+### Gekkon built-in tags:
 
 * [auto_escape](./tags/auto_escape.md)
 * [cache](./tags/cache.md)
