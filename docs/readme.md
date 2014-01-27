@@ -3,8 +3,6 @@
 Gekkon is an [easy-to-use](./syntax.md) & [fast](./benchmark.md) PHP template engine that allows you to separate your HTML code from your PHP code.<br>
 This results in cleaner code that's easier to read and maintain.<br>
 
-## Documentation
-
 #### [Install](./install.md)
 
 #### [Usage](./usage.md)
@@ -16,7 +14,7 @@ This results in cleaner code that's easier to read and maintain.<br>
 #### [Benchmark](./benchmark.md)
 
 
-## Overview
+## Syntax overview
 
 ##### [Variables](./syntax.md#variables)
 
