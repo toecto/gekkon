@@ -117,11 +117,8 @@ class Gekkon {
     {
         if(!$this->compiler)
         {
-            include_once $this->gekkon_path.'settings.php';
-            if(isset($settings))
-            {
-                $this->settings += $settings;
-            }
+            include $this->gekkon_path.'settings.php';
+            $this->settings += $settings;
             Gekkon::include_dir($this->gekkon_path.'compiler');
             $this->compiler = new GekkonCompiler($this);
         }
