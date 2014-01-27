@@ -1,6 +1,6 @@
 ## Tag {use}
 
 ```smarty
-	{use}
-	{/use}
+{use}
+{/use}
 ```

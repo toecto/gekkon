@@ -3,17 +3,17 @@
 Loop tag, similar `for` loop in PHP.<br>
 
 ```smarty
-	{for from=0 to=10 key=$i}
-		{$i}
-	{/for}
+{for from=0 to=10 key=$i}
+    {$i}
+{/for}
 ```
 
 This tag has a second syntax:
 
 ```smarty
-	{for $i=0; $i<10; $i++}
-		{$i}
-	{/for}
+{for $i=0; $i<10; $i++}
+    {$i}
+{/for}
 ```
 
 The first expression `$i=0` is executed once unconditionally at the beginning of the loop.

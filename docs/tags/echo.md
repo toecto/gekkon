@@ -7,9 +7,9 @@ Prints result of expression.
 Have a short form `{}`.
 
 ```smarty
-	{$var}
+{$var}
 ```
 
 ```smarty
-	{echo $var}
+{echo $var}
 ```

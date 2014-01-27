@@ -4,5 +4,5 @@
 By default, any non-local variables available in the current template (global scope) are also available within the included template.
 
 ```smarty
-	{include "subtemplate.tpl"}
+{include "subtemplate.tpl"}
 ```

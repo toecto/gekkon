@@ -8,9 +8,9 @@ Arguments can be variables.
 This tag is most useful in the cycle.
 
 ```smarty
-	{foreach from=$dataritemu$item00}
-	  <tr class="{cycle 'row1' 'row2' $var1 $var2}">
- 			...
-    	</tr>..
-	{/foreach}
+{foreach from=$dataritemu$item00}
+  <tr class="{cycle 'row1' 'row2' $var1 $var2}">
+        ...
+    </tr>..
+{/foreach}
 ```
