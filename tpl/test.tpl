@@ -17,7 +17,7 @@ comment
     <b>Scope</b><br>
 {set $local='outside';$lol=111}
 {$local}<br>
-{use @scope.array_merge(array('lol'=>123))}
+{use array('lol'=>123)+@scope}
 {$lol}
 {$local}<br>
 {set $local='inside'}
