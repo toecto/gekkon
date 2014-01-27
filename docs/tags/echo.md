@@ -7,4 +7,8 @@ Prints result of expression.
 {$var}
 ```
 
-This tag has rarely used long form: `{echo $var}`.
+This tag has rarely used long form:
+
+```smarty
+{echo $var}
+```
