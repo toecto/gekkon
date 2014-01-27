@@ -1,37 +1,41 @@
-##Usage
+## Basic usage
 
 Include the `gekkon.php` in your project.
 
 ```php
 include "gekkon/gekkon.php";
 ```
-	
+
 or if you use [Composer](http://getcomposer.org/):
 
 ```php
 require "gekkon/autoload.php";
 ```
 
+## Initialize Gekkon
+
 Create a new instance of the Gekkon class passing the configuration parameters:
 
-- `$tpl_path` — Full path to template directory. (need read permission)
-- `$tpl_cache_path` — Full path to compiled templates directory. (need access to read and write)
+- Full path to template directory. (need read permission)
+- Full path to compiled templates directory. (need access to read and write)
 
 All paths must ends with `/`.
 
 ```php
-$path = $_SERVER['DOCUMENT_ROOT'];
-$gekkon = new Gekkon($path.'tpl/', $path.'/tpl_cache/');
+$gekkon = new Gekkon('/path/to/templates/', '/path/to/compiled/templates/');
 ```
 
-Use the `register()` method to register variables to the template engine, so designers can use them in their template files:
-
-```php
-$gekkon->register('variableName', $variableValue);
-```
+## Render template
 
 Use the `display()` method to display template by name:
 
 ```php
-$gekkon->display('main.tpl');
+$gekkon->display('main.tpl', $vars);
 ```
+
+Use the `get_display()` method to save output into the variable:
+
+```php
+$output = $gekkon->get_display('main.tpl', $vars);
+```
+
