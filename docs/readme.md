@@ -37,5 +37,4 @@ This results in cleaner code that's easier to read and maintain.<br>
 * [no_parse](./tags/no_parse.md)
 * [set](./tags/set.md)
 * [spaceless](./tags/spaceless.md)
-* [static](./tags/static.md)
 * [use](./tags/use.md)

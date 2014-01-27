@@ -11,6 +11,8 @@ A template contains variables or expressions, which get replaced with values whe
 
 ## Variables
 
+Use variables
+
 | Template syntax | Description | PHP equivalent |
 |:----------------|:------------|:-------------|
 | `{$var}`        | Display variable value. | `$var;` |
@@ -95,5 +97,4 @@ including a key-value format:
 * [no_parse](./tags/no_parse.md)
 * [set](./tags/set.md)
 * [spaceless](./tags/spaceless.md)
-* [static](./tags/static.md)
 * [use](./tags/use.md)
