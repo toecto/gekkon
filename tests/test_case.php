@@ -25,7 +25,9 @@ class TestCase {
         {
             $i++;
             echo $i.") ".$this->called_cls.'::'.$method_name;
+            $this->setUp();
             $this->$method_name();
+            $this->tearDown();
             echo "\n";
         }
         echo "\n";

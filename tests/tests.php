@@ -6,85 +6,82 @@ require_once "test_case.php";
 //error_reporting(0);
 
 class Test extends TestCase {
+    protected $gekkon;
 
-    function get_gekkon()
+    function setUp()
     {
-        return new Gekkon(dirname(__file__).'/tpl/',
-                dirname(__file__).'/tpl/tpl_bin/');
+        $this->gekkon = new Gekkon(dirname(__file__).'/tpl/',
+                                   dirname(__file__).'/tpl/tpl_bin/');
+    }
+
+    function tearDown()
+    {
+        $this->gekkon = NULL;
     }
 
     function test_var()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', '1');
-        $output = $gekkon->get_display('test_var.tpl');
+        $this->gekkon->assign('var', '1');
+        $output = $this->gekkon->get_display('test_var.tpl');
         $this->assertEquals("1", trim($output));
     }
 
     function test_array()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', array(1, 2));
-        $output = $gekkon->get_display('test_array.tpl');
+        $this->gekkon->assign('var', array(1, 2));
+        $output = $this->gekkon->get_display('test_array.tpl');
         $this->assertEquals("1", trim($output));
     }
 
     function test_array_sub()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', array(array(1, 2), array(1, 2)));
-        $output = $gekkon->get_display("test_array_sub.tpl");
+        $this->gekkon->assign('var', array(array(1, 2), array(1, 2)));
+        $output = $this->gekkon->get_display("test_array_sub.tpl");
         $this->assertEquals("2", trim($output));
     }
 
     function test_hash()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', array('key' => "true"));
-        $output = $gekkon->get_display("test_hash.tpl");
+        $this->gekkon->assign('var', array('key' => "true"));
+        $output = $this->gekkon->get_display("test_hash.tpl");
         $this->assertEquals("true", trim($output));
     }
 
     function test_hash_var()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('key', 'key');
-        $gekkon->assign('var', array('key' => "true"));
-        $output = $gekkon->get_display("test_hash_var.tpl");
+        $this->gekkon->assign('key', 'key');
+        $this->gekkon->assign('var', array('key' => "true"));
+        $output = $this->gekkon->get_display("test_hash_var.tpl");
         $this->assertEquals("true", trim($output));
     }
 
     function test_hash_sub()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', array('key' => array("subkey" => "true")));
-        $output = $gekkon->get_display("test_hash_sub.tpl");
+        $this->gekkon->assign('var', array('key' => array("subkey" => "true")));
+        $output = $this->gekkon->get_display("test_hash_sub.tpl");
         $this->assertEquals("true", trim($output));
     }
 
     function test_hash_var_sub()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('key', 'key');
-        $gekkon->assign('subkey', 'subkey');
-        $gekkon->assign('var', array('key' => array("subkey" => "true")));
-        $output = $gekkon->get_display("test_hash_var_sub.tpl");
+        $this->gekkon->assign('key', 'key');
+        $this->gekkon->assign('subkey', 'subkey');
+        $this->gekkon->assign('var', array('key' => array("subkey" => "true")));
+        $output = $this->gekkon->get_display("test_hash_var_sub.tpl");
         $this->assertEquals("true", trim($output));
     }
 
     function test_function()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', 'test');
-        $output = $gekkon->get_display("test_function.tpl");
+        $this->gekkon->assign('var', 'test');
+        $output = $this->gekkon->get_display("test_function.tpl");
         $this->assertEquals("4", trim($output));
     }
 
     function test_function_in()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', 'test');
-        $output = $gekkon->get_display("test_function_in.tpl");
+        $this->gekkon->assign('var', 'test');
+        $output = $this->gekkon->get_display("test_function_in.tpl");
         $this->assertEquals("2", trim($output));
     }
 
@@ -99,9 +96,8 @@ class Test extends TestCase {
             }
         };");
         $obj = new TestMethod();
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('obj', $obj);
-        $output = $gekkon->get_display("test_method_call.tpl");
+        $this->gekkon->assign('obj', $obj);
+        $output = $this->gekkon->get_display("test_method_call.tpl");
         $this->assertEquals("true", trim($output));
     }
 
@@ -111,145 +107,127 @@ class Test extends TestCase {
             public \$name = \"default\";
         }");
         $obj = new TestProperty();
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('obj', $obj);
-        $output = $gekkon->get_display("test_property_call.tpl");
+        $this->gekkon->assign('obj', $obj);
+        $output = $this->gekkon->get_display("test_property_call.tpl");
         $this->assertEquals("default", trim($output));
     }
 
     function test_expression()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var1', 2);
-        $gekkon->assign('var2', 2);
-        $output = $gekkon->get_display("test_expression.tpl");
+        $this->gekkon->assign('var1', 2);
+        $this->gekkon->assign('var2', 2);
+        $output = $this->gekkon->get_display("test_expression.tpl");
         $this->assertEquals("8", trim($output));
     }
 
     function test_tag_set()
     {
-        $gekkon = $this->get_gekkon();
-        $output = $gekkon->get_display("test_tag_set.tpl");
+        $output = $this->gekkon->get_display("test_tag_set.tpl");
         $this->assertEquals("1", trim($output));
     }
 
     function test_tag_if()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', 1);
-        $output = $gekkon->get_display("test_tag_if.tpl");
+        $this->gekkon->assign('var', 1);
+        $output = $this->gekkon->get_display("test_tag_if.tpl");
         $this->assertEquals("1", trim($output));
     }
 
     function test_tag_if_elseif()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', 2);
-        $output = $gekkon->get_display("test_tag_if.tpl");
+        $this->gekkon->assign('var', 2);
+        $output = $this->gekkon->get_display("test_tag_if.tpl");
         $this->assertEquals("2", trim($output));
     }
 
     function test_tag_if_else()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', false);
-        $output = $gekkon->get_display("test_tag_if.tpl");
+        $this->gekkon->assign('var', false);
+        $output = $this->gekkon->get_display("test_tag_if.tpl");
         $this->assertEquals("0", trim($output));
     }
 
     function test_tag_foreach()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('items', array(1, 2, 3));
-        $output = $gekkon->get_display("test_tag_foreach.tpl");
+        $this->gekkon->assign('items', array(1, 2, 3));
+        $output = $this->gekkon->get_display("test_tag_foreach.tpl");
         $this->assertEquals("123", trim($output));
     }
 
     function test_tag_foreach_new()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('items', array(1, 2, 3));
-        $output = $gekkon->get_display("test_tag_foreach_new.tpl");
+        $this->gekkon->assign('items', array(1, 2, 3));
+        $output = $this->gekkon->get_display("test_tag_foreach_new.tpl");
         $this->assertEquals("123", trim($output));
     }
 
     function test_tag_foreach_empty()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('items', array());
-        $output = $gekkon->get_display("test_tag_foreach.tpl");
+        $this->gekkon->assign('items', array());
+        $output = $this->gekkon->get_display("test_tag_foreach.tpl");
         $this->assertEquals("empty", trim($output));
     }
 
     function test_tag_foreach_empty_new()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('items', array());
-        $output = $gekkon->get_display("test_tag_foreach_new.tpl");
+        $this->gekkon->assign('items', array());
+        $output = $this->gekkon->get_display("test_tag_foreach_new.tpl");
         $this->assertEquals("empty", trim($output));
     }
 
     function test_tag_foreach_meta()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('items', array(1, 2, 3));
-        $output = $gekkon->get_display("test_tag_foreach_meta.tpl");
+        $this->gekkon->assign('items', array(1, 2, 3));
+        $output = $this->gekkon->get_display("test_tag_foreach_meta.tpl");
         $this->assertEquals("_|1-0-1-3-2||2-1-2-2-1||3-2-3-1-0|_", trim($output));
     }
 
     function test_tag_foreach_key()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('items', array("one" => 1, "two" => 2, "three" => 3));
-        $output = $gekkon->get_display("test_tag_foreach_key.tpl");
+        $this->gekkon->assign('items', array("one" => 1, "two" => 2, "three" => 3));
+        $output = $this->gekkon->get_display("test_tag_foreach_key.tpl");
         $this->assertEquals("one=1|two=2|three=3", trim($output));
     }
 
     function test_tag_foreach_cycle()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('items', array("one" => 1, "two" => 2, "three" => 3));
-        $gekkon->assign('var3', '3');
-        $output = $gekkon->get_display("test_tag_foreach_cycle.tpl");
+        $this->gekkon->assign('items', array("one" => 1, "two" => 2, "three" => 3));
+        $this->gekkon->assign('var3', '3');
+        $output = $this->gekkon->get_display("test_tag_foreach_cycle.tpl");
         $this->assertEquals("123", trim($output));
     }
 
     function test_tag_foreach_ifchange()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('date_list',
+        $this->gekkon->assign('date_list',
                 array(array("day" => 1, "month" => 1), array("day" => 2, "month" => 1),
             array("day" => 3, "month" => 2)));
-        $output = $gekkon->get_display("test_tag_foreach_ifchange.tpl");
+        $output = $this->gekkon->get_display("test_tag_foreach_ifchange.tpl");
         $this->assertEquals("1=1203=2", trim($output));
     }
 
     function test_tag_for()
     {
-        $gekkon = $this->get_gekkon();
-        $output = $gekkon->get_display("test_tag_for.tpl");
+        $output = $this->gekkon->get_display("test_tag_for.tpl");
         $this->assertEquals("0123456789", trim($output));
     }
 
     function test_tag_for_2()
     {
-        $gekkon = $this->get_gekkon();
-        $output = $gekkon->get_display("test_tag_for_2.tpl");
+        $output = $this->gekkon->get_display("test_tag_for_2.tpl");
         $this->assertEquals("0123456789", trim($output));
     }
 
     function test_tag_include()
     {
-        $gekkon = $this->get_gekkon();
-        $output = $gekkon->get_display("test_tag_include.tpl");
+        $output = $this->gekkon->get_display("test_tag_include.tpl");
         $this->assertEquals("1", trim($output));
     }
 
     function test_tag_no_parse()
     {
-        $gekkon = $this->get_gekkon();
-        $gekkon->assign('var', '1');
-        $output = $gekkon->get_display("test_tag_no_parse.tpl");
+        $this->gekkon->assign('var', '1');
+        $output = $this->gekkon->get_display("test_tag_no_parse.tpl");
         $this->assertEquals("\$var", trim($output));
     }
 
