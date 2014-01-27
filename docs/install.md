@@ -1,6 +1,6 @@
 ## Simple Install
 
-- Download the [last Gekkon release](https://github.com/toecto/gekkon/releases/) in ZIP/GZIP package and extract it to your project directory.
+- Download the [latest Gekkon release](https://github.com/toecto/gekkon/releases/) in ZIP/GZIP package and extract it to your project directory.
 - Create an empty directory to store your template files.
 - Create another empty directory to store your compiled versions (cache) of templates.
 
@@ -23,7 +23,7 @@ Add Gekkon to your `composer.json` requirements:
 }
 ```
 
-When install...
+Install...
 
 ```bash
 php composer.phar install
