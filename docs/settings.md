@@ -7,29 +7,20 @@ Gekkon has some settings that you can change after initialization.
 ```
 
 ## auto_escape
-**By default is False**
 
 HTML-escape each variables outputs.
-Decreases performance.
+
+(**By default is False**)
+
+
+Affects performance.
 
 
 ## tag_systems
 
-**By default, uses a Smarty-like syntax.**
+Templating syntax setting.
 
-Templating syntax setting. 
-
-
-```smarty
-	{foreach from=$data item=$item meta=$loop}
-     	<li>{$loop.counter} {$item}</li>
-     	{if $loop.last}
-         	<li>...</li>
-     	{/if}
-	{empty}
-     	Sorry, items not found...
-	{/foreach}
-```
+(**By default, uses a Smarty-like syntax.**)
 
 You can specify the characters for open and closing tags:
 
@@ -47,7 +38,7 @@ You can specify the characters for open and closing tags:
 
 And then, to use the new syntax in your templates:
 
-```django
+```
 	{% foreach from=$data item=$item meta=$loop %}
      	<li>{{ $loop.counter }} {{ $item }}</li>
      	{% if $loop.last %}
