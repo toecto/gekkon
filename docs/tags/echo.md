@@ -1,14 +1,13 @@
 ## Tag {echo}, {}
 
-Base tag. 
-
+Base tag `{}`.
 Prints result of expression. 
-
-Have a short form `{}`.
 
 ```smarty
 {$var}
 ```
+
+This tag has rarely used long form:
 
 ```smarty
 {echo $var}
