@@ -86,15 +86,15 @@ including a key-value format:
 
 * [auto_escape](./tags/auto_escape.md)
 * [cache](./tags/cache.md)
-* [comment](./tags/comment.md) `{#}`
+* [comment](./tags/comment.md), `{#}`
 * [cycle](./tags/cycle.md)
-* [echo](./tags/echo.md) `{}`
+* [echo](./tags/echo.md), `{}`
 * [for](./tags/for.md)
 * [foreach](./tags/foreach.md)
 * [if](./tags/if.md)
 * [ifchange](./tags/ifchange.md)
 * [include](./tags/include.md)
-* [no_parse](./tags/no_parse.md) `{static}`
+* [no_parse](./tags/no_parse.md), `{static}`
 * [set](./tags/set.md)
 * [spaceless](./tags/spaceless.md)
 * [use](./tags/use.md)
