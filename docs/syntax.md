@@ -88,7 +88,6 @@ including a key-value format:
 * [cache](./tags/cache.md)
 * [comment](./tags/comment.md), `{#}`
 * [cycle](./tags/cycle.md)
-* [echo](./tags/echo.md), `{}`
 * [for](./tags/for.md)
 * [foreach](./tags/foreach.md)
 * [if](./tags/if.md)

@@ -28,7 +28,6 @@ This results in cleaner code that's easier to read and maintain.<br>
 * [cache](./tags/cache.md)
 * [comment](./tags/comment.md), `{#}`
 * [cycle](./tags/cycle.md)
-* [echo](./tags/echo.md), `{}`
 * [for](./tags/for.md)
 * [foreach](./tags/foreach.md)
 * [if](./tags/if.md)
