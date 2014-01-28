@@ -1,9 +1,5 @@
 <?php
 
-namespace Gekkon;
-
-use \ArrayObject;
-
 //version 4.2
 class Gekkon {
 
@@ -129,7 +125,7 @@ class Gekkon {
             include $this->gekkon_path.'settings.php';
             $this->settings += $settings;
             Gekkon::include_dir($this->gekkon_path.'Compiler');
-            $this->compiler = new Compiler($this);
+            $this->compiler = new Gekkon\Compiler($this);
         }
         return $this->compiler->compile($tpl_name);
     }
