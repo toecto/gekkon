@@ -47,44 +47,24 @@ class Compiler {
         $this->close_tokens = $close_tokens;
     }
 
-    function compile($tpl_name)
+    function compile($template)
     {
         $this->error = array();
-        $tpl_file = $this->gekkon->full_tpl_path($tpl_name);
-        if(!is_file($tpl_file))
+        $templateList = $this->gekkon->tplProvider->getAssociated($template);
+        $rez = new BinTemplateCodeSet();
+        foreach($templateList as $tpl)
         {
-            $this->error('Cannot find '.$tpl_file, 'gekkon_compiller');
-            return false;
+            if(($binTpl = $this->compile_one($tpl)) !== false)
+                    $rez[$tpl->name] = $binTpl;
         }
-
-        $this->file_list = array();
-        $this->bin_file = $this->gekkon->full_bin_path($tpl_name);
-
-        $this->get_file_list();
-
-        $rez_data = "<?php\n";
-        $rez_flag = true;
-
-        if(!is_dir($t = dirname($this->bin_file))) mkdir($t, 0777);
-
-        foreach($this->file_list as $tpl)
-        {
-            if(($t = $this->compile_file($tpl)) !== false) $rez_data .= $t;
-            else $rez_flag = false;
-        }
-        file_put_contents($this->bin_file, $rez_data);
-        return $rez_flag;
+        return $rez;
     }
 
-    function compile_file($tpl_name)
+    function compile_one($template)
     {
-        $this->tpl_name = $tpl_name;
-        $full_tpl_path = $this->gekkon->full_tpl_path($tpl_name);
-        return "\nfunction ".$this->gekkon->fn_name($tpl_name)."(\$gekkon,\$scope){\n".
-                '// Template file: '.$full_tpl_path."\n".
-                $this->compile_str(file_get_contents($full_tpl_path)).
-                "}\n";
-        $this->tpl_name = '';
+        $this->binTplCode = new BinTemplateCode($template);
+        $this->binTplCode->set($this->compile_str($template->source()));
+        return $this->binTplCode;
     }
 
     function compile_str($_str, $parent = false)
@@ -107,8 +87,7 @@ class Compiler {
         $rez = '';
         foreach($data as $tag)
         {
-            $t = $tag->compile($this);
-            if($t !== false) $rez.=$t;
+            if(($t = $tag->compile($this)) !== false) $rez.=$t;
             else $this->flush_errors();
         }
         return $rez;
@@ -195,21 +174,6 @@ class Compiler {
                 $_tag->start_token.$_tag->open_raw.$_tag->end_token);
     }
 
-    function get_file_list($dir = '')
-    {
-        $list = scandir($this->gekkon->tpl_path.$dir);
-        foreach($list as $file)
-        {
-            if($file[0] != '.')
-            {
-                if(is_dir($this->gekkon->tpl_path.$dir.$file))
-                        $this->get_file_list($dir.$file.'/');
-                else if(strrchr($file, '.') == '.tpl' && $this->bin_file == $this->gekkon->full_bin_path($dir.$file))
-                        $this->file_list[] = $dir.$file;
-            }
-        }
-    }
-
     function error_in_tag($msg, $_tag)
     {
         return $this->error($msg, 'Tag: '.$_tag->system.':'.$_tag->name,
@@ -268,7 +232,7 @@ class Compiler {
         return $rez;
     }
 
-    function out($data, $just_code = false)
+    function compileOutput($data, $just_code = false)
     {
 
         if($just_code) $rez = '';
@@ -282,3 +246,76 @@ class Compiler {
 }
 
 // End Of Class ----------------------------------------------------------------
+
+class BinTemplateCode {
+
+    var $blocks = array();
+    var $current;
+    var $blocks_stack = array();
+    var $template;
+
+    function __construct($template)
+    {
+        $this->template = $template;
+        $this->pushBlock('main');
+    }
+
+    function pushBlock($name)
+    {
+        array_push($this->blocks_stack, $name);
+        $this->current = $name;
+        if(!isset($this->blocks[$name])) $this->blocks[$name] = '';
+    }
+
+    function popBlock()
+    {
+        $this->current = array_pop($this->blocks_stack);
+    }
+
+    function add($code)
+    {
+        $this->blocks[$this->current] .= $code;
+    }
+
+    function addBefore($code)
+    {
+        $this->blocks[$this->current] = $code.$this->blocks[$this->current];
+    }
+
+    function set($code)
+    {
+        $this->blocks[$this->current] = $code;
+    }
+
+    function code()
+    {
+        $rez = "array('blocks'=> array(\n";
+        foreach($this->blocks as $name => $block)
+        {
+            $rez .= "'$name'=>function (\$gekkon,\$scope){\n".
+                    $block.
+                    "},\n";
+        }
+        $rez.="),'info'=>".var_export(array('created' => time()), true).")\n";
+        return $rez;
+    }
+
+}
+
+// end of class
+
+class BinTemplateCodeSet extends \ArrayObject {
+
+    function code()
+    {
+        $rez = "array(\n";
+        foreach($this as $name => $tplCode)
+        {
+            $rez .= "'$name'=>".$tplCode->code().',';
+        }
+        $rez .= ");\n";
+        return $rez;
+    }
+
+}
+

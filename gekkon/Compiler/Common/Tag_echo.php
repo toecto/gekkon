@@ -13,7 +13,7 @@ class Tag_echo extends BaseTagSingle {
                 return $compiler->error_in_tag('Cannot compile args "'.$this->args_raw.'"',
                             $this);
 
-        return $compiler->out($exp);
+        return $compiler->compileOutput($exp);
     }
 
 }

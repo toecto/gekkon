@@ -6,6 +6,7 @@ class Tag_cache extends BaseTag {
 
     function compile($compiler)
     {
+        return '';
         $exp_compiler = &$compiler->exp_compiler;
         $args = array();
         if(trim($this->args_raw) != '')
