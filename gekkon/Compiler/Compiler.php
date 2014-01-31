@@ -292,11 +292,16 @@ class BinTemplateCode {
         $rez = "array('blocks'=> array(\n";
         foreach($this->blocks as $name => $block)
         {
-            $rez .= "'$name'=>function (\$gekkon,\$scope){\n".
+            $rez .= "'$name'=>function (\$template,\$gekkon,\$scope){\n".
                     $block.
                     "},\n";
         }
-        $rez.="),'info'=>".var_export(array('created' => time()), true).")\n";
+        $info = array(
+            'created' => time(),
+            'name' => $this->template->name,
+            'association' => $this->template->association,
+        );
+        $rez.="),'info'=>".var_export($info, true).")\n";
         return $rez;
     }
 
