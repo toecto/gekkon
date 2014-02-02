@@ -8,6 +8,6 @@ include "gekkon/Gekkon.php";
 $gekkon = new Gekkon(dirname(__file__).'/tpl/', dirname(__file__).'/tpl_bin/');
 
 
-$gekkon->display("test.tpl");
+$gekkon->display("test_extend.tpl");
 
 

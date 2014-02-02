@@ -8,13 +8,14 @@ rr{$a.pow(2)}<br>
 Multiline
 comment
  #}
- {{$a}}
+ {{$a}}{block name}
 {="Str".strtoupper()}
 {set $arr=array('aaa','bbb','ccc','ddd')}
 {set $arr_empty=array()}
-
+{/block}
 <div>
     <b>Scope</b><br>
+    
 {set $local='outside';$lol=111}
 {$local}<br>
 {use array('lol'=>123)+@scope}
@@ -25,6 +26,7 @@ comment
 {/use}
 {$lol}<br>
 {$local}<br>
+
 </div>
 <table border>
     {foreach from=$arr item=$value key=$key meta=@data}
