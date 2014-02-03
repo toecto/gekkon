@@ -14,19 +14,20 @@ comment
 {set $arr_empty=array()}
 {/block}
 <div>
-    <b>Scope</b><br>
-    
-{set $local='outside';$lol=111}
-{$local}<br>
-{use array('lol'=>123)+@scope}
-{$lol}
-{$local}<br>
-{set $local='inside'}
-{$local}<br>
-{/use}
-{$lol}<br>
-{$local}<br>
+    {block namea}
+        <b>Scope</b><br>
 
+        {set $local='outside';$lol=111}
+        {$local}<br>
+        {use array('lol'=>123)+@scope}
+        {$lol}
+        {$local}<br>
+        {set $local='inside'}
+        {$local}<br>
+        {/use}
+        {$lol}<br>
+        {$local}<br>
+    {/block}
 </div>
 <table border>
     {foreach from=$arr item=$value key=$key meta=@data}
