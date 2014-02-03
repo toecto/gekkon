@@ -16,7 +16,6 @@ comment
 <div>
     {block namea}
         <b>Scope</b><br>
-
         {set $local='outside';$lol=111}
         {$local}<br>
         {use array('lol'=>123)+@scope}
