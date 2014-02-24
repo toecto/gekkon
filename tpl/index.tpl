@@ -1,8 +1,4 @@
-Extending template
-{extends "test.tpl"}
+{extends "demo.tpl"}
 {block name}
-    <div>
-New block
-{include "test.tpl" block="name"}
-</div>
+Gekkon {@gekkon->version}
 {/block}

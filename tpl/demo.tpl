@@ -1,34 +1,31 @@
 {#one line comment#}
-Test template<br>
-qq{set $a = 1}<br>
-ww{$a}<br>
-ee{$a+=2}
-rr{$a.pow(2)}<br>
-{#
-Multiline
-comment
- #}
-{{$a}}
-{block name}
-{!="Str".strtoupper()}
+<h1>{block name}Gekkon{/block}</h1>
+<h2>Test template</h2>
+
+<h3>Variable</h3>
+{set $a = 1}
+Output: {$a}<br>
+Output expression 1: {$a+=2}<br>
+Output expression 2: {$a.pow(2)}<br>
+Output expression 3: {="Str".strtoupper()}
+
+<h3>Scope</h3>
 {set $arr=array('aaa','bbb','ccc','ddd')}
 {set $arr_empty=array()}
-{/block}
 <div>
-    {block namea}
-        <b>Scope</b><br>
-        {set $local='outside';$lol=111}
+        {set $local='outside';$second=111}
         {$local}<br>
-        {use array('lol'=>123)+@scope}
-        {$lol}
+        {use array('second'=>123)+@scope}
+        {$second}
         {$local}<br>
         {set $local='inside'}
         {$local}<br>
         {/use}
-        {$lol}<br>
+        {$second}<br>
         {$local}<br>
-    {/block}
 </div>
+
+<h3>Foreach</h3>
 <table border>
     {foreach from=$arr item=$value key=$key meta=@data}
         
@@ -47,6 +44,7 @@ comment
     {/foreach}
 </table>
 
+<h3>Empty foreach</h3>
 <table border>
     {foreach from=$arr_empty item=$value key=$key meta=@data}
         <tr>
@@ -61,16 +59,25 @@ comment
     {/foreach}
 </table>
 
-{no_parse}Wrong placed {empty}{/no_parse}
-{empty}
+<h3>No parse</h3>
+{no_parse}
+<pre>
+    {foreach from=$arr_empty item=$value key=$key meta=@data}
+            {$key}
+            {$value}
+            {@data.print_r()}
+        {empty}
+            NoData
+    {/foreach}
+</pre>
+{/no_parse}
 
-<div>Another foreach syntax</div>
+<h3>Another foreach syntax</h3>
 {foreach $arr as $key=>$value;@data}
     row{cycle "x","y","z" data=$globalCycle};{$key}=>{$value} {@data.print_r()}<br>
 {/foreach}
 
-
-<div>If else if</div>
+<h3>If, else if</h3>
 {foreach $arr.array_reverse(true) as $key=>$value;@data}
     {$key}
     {if $key==0}
@@ -86,24 +93,21 @@ comment
 {/foreach}
 
 
-
+<h3>Ifchange</h3>
 {set $arr2=array('aaa','aaa','ccc','ccc')}
-<div>Ifchange</div>
 {foreach $arr2 as $key=>$value}
     {$value} {ifchange $value}chaged{else}not changed{/ifchange}
     <br>
 {/foreach}
     
-    
-<div>for loop</div>
+<h3>For loop</h3>
 {set $now=time()}
 {for $i=0; $i<65;$i++}
 {ifchange}<div><b>{@ date('Y F',$now+$i*60*60*24)}</b></div>{/ifchange}
 {echo 'd'.date($now+$i*60*60*24)}
 {/for}
 
-<div>for loop2</div>
-
+<h3>For loop other syntax + cache</h3>
 {cache timeout=3} {set $now=time()}
 {spaceless}
     {for from=0 key=$i to=65}
@@ -112,3 +116,7 @@ comment
     {/for}
 {/spaceless}
 {/cache}
+{#
+Multiline
+comment
+ #}
