@@ -70,7 +70,6 @@ class Gekkon {
                     return $this->error('Cannot compile '.$tpl_name, 'gekkon');
             $this->cacheProvider->clear_cache($binTpl);
         }
-
         return $this->loaded[$tpl_full_name] = $binTpl;
     }
 
@@ -340,6 +339,7 @@ class BinTplProviderFS {
     function save($template, $binTplCodeSet)
     {
         Gekkon::create_dir(dirname($file = $this->full_path($template->association)));
+        unset($this->loaded[$template->name]);
         file_put_contents($file, '<?php return '.$binTplCodeSet->code());
     }
 
